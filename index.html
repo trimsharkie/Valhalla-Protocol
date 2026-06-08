@@ -9,7 +9,7 @@
 <body>
 
     <h1>⚔️ Valhalla Protocol</h1>
-    <p>Berserker Tracker v1.5</p>
+    <p>Berserker Tracker v1.6</p>
 
     <label>Training type</label>
     <select id="trainingType">
@@ -20,11 +20,20 @@
         <option>Custom</option>
     </select>
 
+    <h2>Oefening toevoegen</h2>
+
+    <input id="newExercise" placeholder="Nieuwe oefening toevoegen">
+    <button onclick="addExercise()">Oefening opslaan</button>
+    <button onclick="deleteExercise()"> Oefening verwijderen</button>
+
     <h2>Set toevoegen</h2>
 
-    <input id="exercise" placeholder="Oefening, bv. Belt Squat">
+    <select id="exercise"></select>
+
     <input id="weight" type="number" placeholder="KG">
     <input id="reps" type="number" placeholder="Reps">
+    
+  
 
     <button onclick="addSet()">Set toevoegen</button>
 
@@ -32,6 +41,7 @@
     <div id="setList"></div>
 
     <h2>Gevoel</h2>
+
     <input id="energy" type="number" min="1" max="10" placeholder="Energie 1-10">
     <input id="sleep" placeholder="Slaap, bv. goed/matig/slecht">
     <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
@@ -39,6 +49,10 @@
     <button onclick="generateReport()">Maak rapport</button>
     <button onclick="copyReport()">Kopieer rapport</button>
     <button onclick="clearTraining()">Nieuwe training</button>
+    <button onclick="saveTraining()">Training opslaan</button>
+
+    <h2>Opgeslagen trainingen</h2>
+    <div id="historyList"></div>
 
     <h2>Rapport</h2>
     <textarea id="report"></textarea>
