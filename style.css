@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #f5f5f5;
+    margin: 20px;
+    max-width: 800px;
+}
+
+h1, h2 {
+    color: #f0b429;
+}
+
+input, select, textarea, button {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 6px 0;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+input, select, textarea {
+    background: #222;
+    color: #fff;
+}
+
+button {
+    background: #f0b429;
+    color: #111;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ffd166;
+}
+
+#setList {
+    background: #1c1c1c;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 80px;
+}
+
+.set-item {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+}
+
+#report {
+    height: 260px;
+}

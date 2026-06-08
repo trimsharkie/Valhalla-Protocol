@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spartan Forge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>⚔️ Spartan Forge</h1>
+    <p>Berserker Tracker v1.5</p>
+
+    <label>Training type</label>
+    <select id="trainingType">
+        <option>Upper</option>
+        <option>Lower</option>
+        <option>Full Body</option>
+        <option>Cardio</option>
+        <option>Custom</option>
+    </select>
+
+    <h2>Set toevoegen</h2>
+
+    <input id="exercise" placeholder="Oefening, bv. Belt Squat">
+    <input id="weight" type="number" placeholder="KG">
+    <input id="reps" type="number" placeholder="Reps">
+
+    <button onclick="addSet()">Set toevoegen</button>
+
+    <h2>Training log</h2>
+    <div id="setList"></div>
+
+    <h2>Gevoel</h2>
+    <input id="energy" type="number" min="1" max="10" placeholder="Energie 1-10">
+    <input id="sleep" placeholder="Slaap, bv. goed/matig/slecht">
+    <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
+
+    <button onclick="generateReport()">Maak rapport</button>
+    <button onclick="copyReport()">Kopieer rapport</button>
+    <button onclick="clearTraining()">Nieuwe training</button>
+
+    <h2>Rapport</h2>
+    <textarea id="report"></textarea>
+
+    <script src="app.js"></script>
+</body>
+</html>
