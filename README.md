@@ -1,2 +1,2 @@
-# Spartan-Forge
+# Valhalla-Protocol
 Fitness Tracker
