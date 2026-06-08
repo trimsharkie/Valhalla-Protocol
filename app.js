@@ -21,6 +21,10 @@ document
     .getElementById("trainingType")
     .addEventListener("change", populateExercises);
 
+document
+    .getElementById("exercise")
+    .addEventListener("change", showLastPerformance);
+
 function saveSets() {
     localStorage.setItem("currentTrainingSets", JSON.stringify(sets));
 }
@@ -50,6 +54,8 @@ function populateExercises() {
         option.textContent = exercise;
         dropdown.appendChild(option);
     });
+
+    showLastPerformance();
 }
 
 function addExercise() {
@@ -71,15 +77,13 @@ function addExercise() {
     document.getElementById("exercise").value = newExercise;
     document.getElementById("newExercise").value = "";
     document.getElementById("weight").focus();
+
+    showLastPerformance();
 }
 
 function deleteExercise() {
-
-    const trainingType =
-        document.getElementById("trainingType").value;
-
-    const exercise =
-        document.getElementById("exercise").value;
+    const trainingType = document.getElementById("trainingType").value;
+    const exercise = document.getElementById("exercise").value;
 
     if (!exercise) {
         alert("Selecteer eerst een oefening.");
@@ -91,8 +95,7 @@ function deleteExercise() {
     }
 
     exerciseLibrary[trainingType] =
-        exerciseLibrary[trainingType]
-            .filter(e => e !== exercise);
+        exerciseLibrary[trainingType].filter(e => e !== exercise);
 
     saveExerciseLibrary();
     populateExercises();
@@ -108,10 +111,17 @@ function addSet() {
         return;
     }
 
+    const numericWeight = Number(weight);
+    const numericReps = Number(reps);
+
+    if (checkWeightPR(exercise, numericWeight)) {
+        alert(`🔥 NEW WEIGHT PR ⚔️\n\n${exercise}\n${numericWeight} kg`);
+    }
+
     sets.push({
         exercise: exercise,
-        weight: Number(weight),
-        reps: Number(reps)
+        weight: numericWeight,
+        reps: numericReps
     });
 
     saveSets();
@@ -167,8 +177,6 @@ function groupSetsByExercise() {
 
 function generateReport() {
     const trainingType = document.getElementById("trainingType").value;
-    const energy = document.getElementById("energy").value || "Niet ingevuld";
-    const sleep = document.getElementById("sleep").value || "Niet ingevuld";
     const notes = document.getElementById("notes").value || "Geen opmerkingen";
 
     const grouped = groupSetsByExercise();
@@ -190,8 +198,6 @@ Datum: ${new Date().toLocaleDateString("nl-NL")}
 Oefeningen:
 ${exerciseText}
 
-Energie: ${energy}/10
-Slaap: ${sleep}
 Opmerkingen: ${notes}
 
 Vraag aan ChatGPT:
@@ -220,13 +226,14 @@ function saveTraining() {
         return;
     }
 
+    generateReport();
+
     const training = {
         date: new Date().toLocaleDateString("nl-NL"),
         trainingType: document.getElementById("trainingType").value,
-        sets: sets,
-        energy: document.getElementById("energy").value || "",
-        sleep: document.getElementById("sleep").value || "",
-        notes: document.getElementById("notes").value || ""
+        sets: [...sets],
+        notes: document.getElementById("notes").value || "",
+        report: document.getElementById("report").value || ""
     };
 
     trainingHistory.unshift(training);
@@ -236,6 +243,7 @@ function saveTraining() {
 
     clearTraining(false);
     renderHistory();
+    showLastPerformance();
 }
 
 function renderHistory() {
@@ -257,8 +265,6 @@ function renderHistory() {
         div.innerHTML = `
             <strong>${training.date} - ${training.trainingType}</strong><br>
             Sets: ${training.sets.length}<br>
-            Energie: ${training.energy || "Niet ingevuld"}<br>
-            Slaap: ${training.sleep || "Niet ingevuld"}<br>
             <button onclick="loadTraining(${index})">Bekijk</button>
             <button onclick="deleteTraining(${index})">Verwijder</button>
         `;
@@ -270,12 +276,11 @@ function renderHistory() {
 function loadTraining(index) {
     const training = trainingHistory[index];
 
-    sets = training.sets;
+    sets = [...training.sets];
 
     document.getElementById("trainingType").value = training.trainingType;
-    document.getElementById("energy").value = training.energy;
-    document.getElementById("sleep").value = training.sleep;
     document.getElementById("notes").value = training.notes;
+    document.getElementById("report").value = training.report || "";
 
     saveSets();
     populateExercises();
@@ -292,6 +297,7 @@ function deleteTraining(index) {
     trainingHistory.splice(index, 1);
     saveHistory();
     renderHistory();
+    showLastPerformance();
 }
 
 function clearTraining(askConfirm = true) {
@@ -307,8 +313,75 @@ function clearTraining(askConfirm = true) {
 
     document.getElementById("report").value = "";
     document.getElementById("notes").value = "";
-    document.getElementById("energy").value = "";
-    document.getElementById("sleep").value = "";
-
     renderSets();
+}
+
+function showLastPerformance() {
+    const exercise = document.getElementById("exercise").value;
+    const box = document.getElementById("lastPerformance");
+
+    if (!box) return;
+
+    if (!exercise) {
+        box.innerHTML = "";
+        return;
+    }
+
+    const lastTraining =
+        trainingHistory.find(training =>
+            training.sets.some(set => set.exercise === exercise)
+        );
+
+    if (!lastTraining) {
+        box.innerHTML = "⚔️ Nog geen eerdere prestaties.";
+        return;
+    }
+
+    const exerciseSets =
+        lastTraining.sets.filter(set => set.exercise === exercise);
+
+    let html = `<strong>⚔️ Laatste keer:</strong><br>`;
+
+    exerciseSets.forEach(set => {
+        html += `${set.weight} kg x ${set.reps}<br>`;
+    });
+
+    html += `<small>${lastTraining.date}</small>`;
+
+    box.innerHTML = html;
+}
+
+function checkWeightPR(exercise, weight) {
+
+    let highestWeight = 0;
+
+    // Historie bekijken
+    trainingHistory.forEach(training => {
+
+        training.sets.forEach(set => {
+
+            if (
+                set.exercise === exercise &&
+                set.weight > highestWeight
+            ) {
+                highestWeight = set.weight;
+            }
+
+        });
+
+    });
+
+    // Huidige training bekijken
+    sets.forEach(set => {
+
+        if (
+            set.exercise === exercise &&
+            set.weight > highestWeight
+        ) {
+            highestWeight = set.weight;
+        }
+
+    });
+
+    return weight > highestWeight;
 }
