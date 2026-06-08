@@ -114,8 +114,30 @@ function addSet() {
     const numericWeight = Number(weight);
     const numericReps = Number(reps);
 
-    if (checkWeightPR(exercise, numericWeight)) {
-        alert(`🔥 NEW WEIGHT PR ⚔️\n\n${exercise}\n${numericWeight} kg`);
+    const highestWeight = getHighestWeight(exercise);
+
+    if (highestWeight === 0) {
+    alert(
+    `⚔️ Eerste geregistreerde gewicht
+
+    ${exercise}
+
+    Record gezet:
+    ${numericWeight} kg`
+    );
+    }
+    else if (numericWeight > highestWeight) {
+        alert(
+    `🔥 NEW WEIGHT PR ⚔️
+
+    ${exercise}
+
+    Oud record:
+    ${highestWeight} kg
+
+    Nieuw record:
+    ${numericWeight} kg`
+        );
     }
 
     sets.push({
@@ -351,37 +373,22 @@ function showLastPerformance() {
     box.innerHTML = html;
 }
 
-function checkWeightPR(exercise, weight) {
-
+function getHighestWeight(exercise) {
     let highestWeight = 0;
 
-    // Historie bekijken
     trainingHistory.forEach(training => {
-
         training.sets.forEach(set => {
-
-            if (
-                set.exercise === exercise &&
-                set.weight > highestWeight
-            ) {
+            if (set.exercise === exercise && set.weight > highestWeight) {
                 highestWeight = set.weight;
             }
-
         });
-
     });
 
-    // Huidige training bekijken
     sets.forEach(set => {
-
-        if (
-            set.exercise === exercise &&
-            set.weight > highestWeight
-        ) {
+        if (set.exercise === exercise && set.weight > highestWeight) {
             highestWeight = set.weight;
         }
-
     });
 
-    return weight > highestWeight;
+    return highestWeight;
 }
