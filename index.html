@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Valhalla Protocol</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-512.png">
+    
+    <meta name="theme-color" content="#000000">
+
+</head>
+<body>
+
+    <h1>⚔️ Valhalla Protocol</h1>
+    <p>Berserker Tracker v1.7</p>
+
+    <label>Training type</label>
+    <select id="trainingType">
+        <option>Upper</option>
+        <option>Lower</option>
+        <option>Full Body</option>
+        <option>Cardio</option>
+        <option>Custom</option>
+    </select>
+
+    <h2>Oefening toevoegen</h2>
+
+    <input id="newExercise" placeholder="Nieuwe oefening toevoegen">
+    <button onclick="addExercise()">Oefening opslaan</button>
+    <button onclick="deleteExercise()">Oefening verwijderen</button>
+
+    <h2>Set toevoegen</h2>
+
+    <select id="exercise"></select>
+
+    <div id="lastPerformance"></div>
+
+    <br>
+
+    <input id="weight" type="number" placeholder="KG">
+    <input id="reps" type="number" placeholder="Reps">
+    
+  
+
+    <button onclick="addSet()">Set toevoegen</button>
+
+    <h2>Training log</h2>
+    <div id="setList"></div>
+
+    <h2>Opmerking</h2>
+    <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
+
+    <button onclick="generateReport()">Maak rapport</button>
+    <button onclick="copyReport()">Kopieer rapport</button>
+    <button onclick="clearTraining()">Nieuwe training</button>
+    <button onclick="saveTraining()">Training opslaan</button>
+
+    <h2>Opgeslagen trainingen</h2>
+    <div id="historyList"></div>
+
+    <h2>Rapport</h2>
+    <textarea id="report"></textarea>
+
+    <script src="app.js"></script>
+</body>
+</html>
