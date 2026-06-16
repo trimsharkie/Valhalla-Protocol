@@ -851,7 +851,10 @@ trainingHistory.forEach(training => {
         }).join(" ");
 
         html += `
-            <div class="calendar-day ${hasTraining ? "trained" : ""}">
+            <div
+                class="calendar-day ${hasTraining ? "trained" : ""}"
+                onclick="showCalendarDetails('${dateString}')"
+            >
                 <span>${day}</span>
                 ${hasTraining ? `<strong>${labels}</strong>` : ""}
             </div>
@@ -878,4 +881,67 @@ function normalizeDateString(dateString) {
         parts[2];
 
     return `${day}-${month}-${year}`;
+}
+
+function showCalendarDetails(dateString) {
+
+    const details =
+        document.getElementById("calendarDetails");
+
+    if (!details) return;
+
+    const trainings =
+        trainingHistory.filter(training =>
+            normalizeDateString(training.date) === dateString
+        );
+
+    if (trainings.length === 0) {
+
+        details.innerHTML = `
+            <h3>📅 ${dateString}</h3>
+            <p>Geen training opgeslagen.</p>
+        `;
+
+        return;
+    }
+
+    let html = `
+        <h3>📅 ${dateString}</h3>
+    `;
+
+    trainings.forEach(training => {
+
+        html += `
+            <div class="calendar-training">
+                <h4>⚔️ ${training.trainingType}</h4>
+        `;
+
+        training.sets.forEach(set => {
+
+            html += `
+                <div>
+                    ${set.exercise} -
+                    ${set.weight} kg x ${set.reps}
+                </div>
+            `;
+
+        });
+
+        if (training.notes) {
+
+            html += `
+                <p>
+                    <strong>📝 Opmerking:</strong><br>
+                    ${training.notes}
+                </p>
+            `;
+        }
+
+        html += `
+            </div>
+        `;
+
+    });
+
+    details.innerHTML = html;
 }

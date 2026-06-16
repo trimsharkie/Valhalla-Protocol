@@ -104,3 +104,14 @@ button:hover {
     font-size: 18px;
     font-weight: bold;
 }
+
+#calendarDetails {
+    margin-top: 20px;
+}
+
+.calendar-training {
+    background: #1c1c1c;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+}
