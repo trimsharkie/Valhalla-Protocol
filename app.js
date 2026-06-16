@@ -10,6 +10,8 @@ let exerciseLibrary =
         Custom: []
     };
 
+let progressChart = null;
+
 let trainingHistory =
     JSON.parse(localStorage.getItem("trainingHistory")) || [];
 
@@ -77,6 +79,7 @@ function addExercise() {
     }
 
     populateExercises();
+    populateProgressExercises();
 
     document.getElementById("exercise").value = newExercise;
     document.getElementById("newExercise").value = "";
@@ -103,6 +106,7 @@ function deleteExercise() {
 
     saveExerciseLibrary();
     populateExercises();
+    populateProgressExercises();
 }
 
 function addSet() {
@@ -121,26 +125,25 @@ function addSet() {
     const highestWeight = getHighestWeight(exercise);
 
     if (highestWeight === 0) {
-    alert(
-    `⚔️ Eerste geregistreerde gewicht
-
-    ${exercise}
-
-    Record gezet:
-    ${numericWeight} kg`
-    );
-    }
-    else if (numericWeight > highestWeight) {
         alert(
-    `🔥 NEW WEIGHT PR ⚔️
+`⚔️ Eerste geregistreerde gewicht
 
-    ${exercise}
+${exercise}
 
-    Oud record:
-    ${highestWeight} kg
+Record gezet:
+${numericWeight} kg`
+        );
+    } else if (numericWeight > highestWeight) {
+        alert(
+`🔥 NEW WEIGHT PR ⚔️
 
-    Nieuw record:
-    ${numericWeight} kg`
+${exercise}
+
+Oud record:
+${highestWeight} kg
+
+Nieuw record:
+${numericWeight} kg`
         );
     }
 
@@ -331,6 +334,7 @@ function deleteTraining(index) {
 
     trainingHistory.splice(index, 1);
     saveHistory();
+
     renderHistory();
     renderRecords();
     renderDashboard();
@@ -352,6 +356,7 @@ function clearTraining(askConfirm = true) {
 
     document.getElementById("report").value = "";
     document.getElementById("notes").value = "";
+
     renderSets();
 }
 
@@ -411,7 +416,6 @@ function getHighestWeight(exercise) {
 }
 
 function showTab(tabId) {
-
     document.getElementById("trainingTab").style.display = "none";
     document.getElementById("historyTab").style.display = "none";
     document.getElementById("recordsTab").style.display = "none";
@@ -422,7 +426,6 @@ function showTab(tabId) {
 }
 
 function renderRecords() {
-
     const recordsList =
         document.getElementById("recordsList");
 
@@ -431,18 +434,14 @@ function renderRecords() {
     const records = {};
 
     trainingHistory.forEach(training => {
-
         training.sets.forEach(set => {
-
             if (
                 !records[set.exercise] ||
                 set.weight > records[set.exercise]
             ) {
                 records[set.exercise] = set.weight;
             }
-
         });
-
     });
 
     let html = "";
@@ -450,7 +449,6 @@ function renderRecords() {
     Object.keys(records)
         .sort()
         .forEach(exercise => {
-
             html += `
                 <div class="record-item">
                     🏆 ${exercise} - ${records[exercise]} kg
@@ -482,8 +480,8 @@ function renderDashboard() {
 
     const trainingsThisMonth =
         trainingHistory.filter(training => {
-            const parts = training.date.split("-");
-            const trainingDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const trainingDate =
+                parseDutchDate(training.date);
 
             return (
                 trainingDate.getMonth() === currentMonth &&
@@ -558,14 +556,12 @@ function populateProgressExercises() {
     const currentValue = dropdown.value;
     const exercises = new Set();
 
-    // Oefeningen uit opgeslagen trainingen
     trainingHistory.forEach(training => {
         training.sets.forEach(set => {
             exercises.add(set.exercise);
         });
     });
 
-    // Oefeningen uit oefenbibliotheek
     Object.keys(exerciseLibrary).forEach(trainingType => {
         exerciseLibrary[trainingType].forEach(exercise => {
             exercises.add(exercise);
@@ -601,33 +597,57 @@ function renderProgress() {
     if (!progressList) return;
 
     if (!selectedExercise) {
-        progressList.innerHTML = "<p>Kies een oefening om progressie te bekijken.</p>";
+        progressList.innerHTML =
+            "<p>Kies een oefening om progressie te bekijken.</p>";
+
+        clearProgressChart();
         return;
     }
 
-    const progressData = [];
+    const weeklyProgress = {};
 
     trainingHistory.forEach(training => {
         const setsForExercise =
-            training.sets.filter(set => set.exercise === selectedExercise);
+            training.sets.filter(set =>
+                set.exercise === selectedExercise
+            );
 
         if (setsForExercise.length === 0) return;
 
         const bestWeight =
             Math.max(...setsForExercise.map(set => set.weight));
 
-        progressData.push({
-            date: training.date,
-            weight: bestWeight
-        });
+        const trainingDate =
+            parseDutchDate(training.date);
+
+        const weekKey =
+            getWeekKey(trainingDate);
+
+        if (
+            !weeklyProgress[weekKey] ||
+            bestWeight > weeklyProgress[weekKey].weight
+        ) {
+            weeklyProgress[weekKey] = {
+                date: weekKey,
+                weight: bestWeight
+            };
+        }
     });
 
+    const progressData =
+        Object.values(weeklyProgress);
+
+    progressData.sort((a, b) =>
+        a.date.localeCompare(b.date)
+    );
+
     if (progressData.length === 0) {
-        progressList.innerHTML = "<p>Geen progressie gevonden.</p>";
+        progressList.innerHTML =
+            "<p>Geen progressie gevonden.</p>";
+
+        clearProgressChart();
         return;
     }
-
-    progressData.reverse();
 
     let html = `
         <h3>${selectedExercise}</h3>
@@ -645,4 +665,87 @@ function renderProgress() {
     html += "</div>";
 
     progressList.innerHTML = html;
+
+    renderProgressChart(selectedExercise, progressData);
+}
+
+function renderProgressChart(selectedExercise, progressData) {
+    const ctx =
+        document.getElementById("progressChart");
+
+    if (!ctx) return;
+
+    if (typeof Chart === "undefined") {
+        console.warn("Chart.js is niet geladen.");
+        return;
+    }
+
+    if (progressChart) {
+        progressChart.destroy();
+    }
+
+    progressChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: progressData.map(x => x.date),
+            datasets: [{
+                label: selectedExercise,
+                data: progressData.map(x => x.weight),
+                borderWidth: 3,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function clearProgressChart() {
+    if (progressChart) {
+        progressChart.destroy();
+        progressChart = null;
+    }
+}
+
+function parseDutchDate(dateString) {
+    const parts =
+        dateString.split("-");
+
+    return new Date(
+        Number(parts[2]),
+        Number(parts[1]) - 1,
+        Number(parts[0])
+    );
+}
+
+function getWeekKey(date) {
+    const tempDate =
+        new Date(Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        ));
+
+    const dayNumber =
+        tempDate.getUTCDay() || 7;
+
+    tempDate.setUTCDate(
+        tempDate.getUTCDate() + 4 - dayNumber
+    );
+
+    const yearStart =
+        new Date(Date.UTC(
+            tempDate.getUTCFullYear(),
+            0,
+            1
+        ));
+
+    const weekNumber =
+        Math.ceil(
+            (((tempDate - yearStart) / 86400000) + 1) / 7
+        );
+
+    return `${tempDate.getUTCFullYear()}-W${String(weekNumber).padStart(2, "0")}`;
 }
