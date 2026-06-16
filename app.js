@@ -18,6 +18,7 @@ renderSets();
 renderHistory();
 renderRecords();
 renderDashboard();
+populateProgressExercises();
 renderProgress();
 
 document
@@ -270,6 +271,7 @@ function saveTraining() {
     renderHistory();
     renderRecords();
     renderDashboard();
+    populateProgressExercises();
     renderProgress();
     showLastPerformance();
 }
@@ -332,6 +334,7 @@ function deleteTraining(index) {
     renderHistory();
     renderRecords();
     renderDashboard();
+    populateProgressExercises();
     renderProgress();
     showLastPerformance();
 }
