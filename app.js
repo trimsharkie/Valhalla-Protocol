@@ -16,6 +16,7 @@ let trainingHistory =
 populateExercises();
 renderSets();
 renderHistory();
+renderRecords();
 
 document
     .getElementById("trainingType")
@@ -265,6 +266,7 @@ function saveTraining() {
 
     clearTraining(false);
     renderHistory();
+    renderRecords();
     showLastPerformance();
 }
 
@@ -319,6 +321,7 @@ function deleteTraining(index) {
     trainingHistory.splice(index, 1);
     saveHistory();
     renderHistory();
+    renderRecords();
     showLastPerformance();
 }
 
@@ -391,4 +394,57 @@ function getHighestWeight(exercise) {
     });
 
     return highestWeight;
+}
+
+function showTab(tabId) {
+
+    document.getElementById("trainingTab").style.display = "none";
+    document.getElementById("historyTab").style.display = "none";
+    document.getElementById("recordsTab").style.display = "none";
+
+    document.getElementById(tabId).style.display = "block";
+}
+
+function renderRecords() {
+
+    const recordsList =
+        document.getElementById("recordsList");
+
+    if (!recordsList) return;
+
+    const records = {};
+
+    trainingHistory.forEach(training => {
+
+        training.sets.forEach(set => {
+
+            if (
+                !records[set.exercise] ||
+                set.weight > records[set.exercise]
+            ) {
+                records[set.exercise] = set.weight;
+            }
+
+        });
+
+    });
+
+    let html = "";
+
+    Object.keys(records)
+        .sort()
+        .forEach(exercise => {
+
+            html += `
+                <div class="record-item">
+                    🏆 ${exercise} - ${records[exercise]} kg
+                </div>
+            `;
+        });
+
+    if (html === "") {
+        html = "<p>Nog geen records beschikbaar.</p>";
+    }
+
+    recordsList.innerHTML = html;
 }
