@@ -11,6 +11,7 @@ let exerciseLibrary =
     };
 
 let progressChart = null;
+let calendarDate = new Date();
 
 let trainingHistory =
     JSON.parse(localStorage.getItem("trainingHistory")) || [];
@@ -22,6 +23,7 @@ renderRecords();
 renderDashboard();
 populateProgressExercises();
 renderProgress();
+renderCalendar();
 
 document
     .getElementById("trainingType")
@@ -276,6 +278,7 @@ function saveTraining() {
     renderDashboard();
     populateProgressExercises();
     renderProgress();
+    renderCalendar();
     showLastPerformance();
 }
 
@@ -323,6 +326,7 @@ function loadTraining(index) {
     renderDashboard();
     populateProgressExercises();
     renderProgress();
+    renderCalendar();
 
     alert("Training geladen.");
 }
@@ -340,6 +344,7 @@ function deleteTraining(index) {
     renderDashboard();
     populateProgressExercises();
     renderProgress();
+    renderCalendar();
     showLastPerformance();
 }
 
@@ -421,13 +426,13 @@ function showTab(tabId) {
     document.getElementById("recordsTab").style.display = "none";
     document.getElementById("dashboardTab").style.display = "none";
     document.getElementById("progressTab").style.display = "none";
+    document.getElementById("calendarTab").style.display = "none";
 
     document.getElementById(tabId).style.display = "block";
 }
 
 function renderRecords() {
-    const recordsList =
-        document.getElementById("recordsList");
+    const recordsList = document.getElementById("recordsList");
 
     if (!recordsList) return;
 
@@ -464,24 +469,17 @@ function renderRecords() {
 }
 
 function renderDashboard() {
-    const dashboard =
-        document.getElementById("dashboard");
+    const dashboard = document.getElementById("dashboard");
 
     if (!dashboard) return;
 
-    const totalTrainings =
-        trainingHistory.length;
-
-    const currentMonth =
-        new Date().getMonth();
-
-    const currentYear =
-        new Date().getFullYear();
+    const totalTrainings = trainingHistory.length;
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
     const trainingsThisMonth =
         trainingHistory.filter(training => {
-            const trainingDate =
-                parseDutchDate(training.date);
+            const trainingDate = parseDutchDate(training.date);
 
             return (
                 trainingDate.getMonth() === currentMonth &&
@@ -502,11 +500,8 @@ function renderDashboard() {
         });
     });
 
-    const recordCount =
-        Object.keys(records).length;
-
-    const lastTraining =
-        trainingHistory[0];
+    const recordCount = Object.keys(records).length;
+    const lastTraining = trainingHistory[0];
 
     let topRecordsHtml = "";
 
@@ -710,8 +705,7 @@ function clearProgressChart() {
 }
 
 function parseDutchDate(dateString) {
-    const parts =
-        dateString.split("-");
+    const parts = dateString.split("-");
 
     return new Date(
         Number(parts[2]),
@@ -748,4 +742,140 @@ function getWeekKey(date) {
         );
 
     return `${tempDate.getUTCFullYear()}-W${String(weekNumber).padStart(2, "0")}`;
+}
+
+function changeCalendarMonth(direction) {
+    calendarDate.setMonth(calendarDate.getMonth() + direction);
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const calendar =
+        document.getElementById("calendar");
+
+    const calendarTitle =
+        document.getElementById("calendarTitle");
+
+    if (!calendar || !calendarTitle) return;
+
+    const year =
+        calendarDate.getFullYear();
+
+    const month =
+        calendarDate.getMonth();
+
+    const monthName =
+        calendarDate.toLocaleDateString("nl-NL", {
+            month: "long",
+            year: "numeric"
+        });
+
+    calendarTitle.textContent =
+        monthName.charAt(0).toUpperCase() +
+        monthName.slice(1);
+
+    const firstDay =
+        new Date(year, month, 1);
+
+    const lastDay =
+        new Date(year, month + 1, 0);
+
+    const daysInMonth =
+        lastDay.getDate();
+
+    let startDay =
+        firstDay.getDay();
+
+    if (startDay === 0) {
+        startDay = 7;
+    }
+
+const trainingByDate = {};
+
+trainingHistory.forEach(training => {
+
+    const normalizedDate =
+        normalizeDateString(training.date);
+
+    if (!trainingByDate[normalizedDate]) {
+        trainingByDate[normalizedDate] = [];
+    }
+
+    trainingByDate[normalizedDate]
+        .push(training.trainingType);
+
+});
+
+    let html = `
+        <div class="calendar-grid calendar-header">
+            <div>Ma</div>
+            <div>Di</div>
+            <div>Wo</div>
+            <div>Do</div>
+            <div>Vr</div>
+            <div>Za</div>
+            <div>Zo</div>
+        </div>
+
+        <div class="calendar-grid">
+    `;
+
+    for (let i = 1; i < startDay; i++) {
+        html += `
+            <div class="calendar-day empty"></div>
+        `;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateString =
+            `${String(day).padStart(2, "0")}-${String(month + 1).padStart(2, "0")}-${year}`;
+
+        const trainingsForDay =
+            trainingByDate[dateString] || [];
+
+        const hasTraining =
+            trainingsForDay.length > 0;
+
+        const labels =
+            [...new Set(trainingsForDay)]
+                .map(type => {
+
+                    if (type === "Upper") return "U";
+                    if (type === "Lower") return "L";
+                    if (type === "Full Body") return "F";
+                    if (type === "Cardio") return "C";
+                    if (type === "Custom") return "X";
+
+            return "?";
+
+        }).join(" ");
+
+        html += `
+            <div class="calendar-day ${hasTraining ? "trained" : ""}">
+                <span>${day}</span>
+                ${hasTraining ? `<strong>${labels}</strong>` : ""}
+            </div>
+        `;
+    }
+
+    html += `
+        </div>
+    `;
+
+    calendar.innerHTML = html;
+}
+
+function normalizeDateString(dateString) {
+    const parts = dateString.split("-");
+
+    const day =
+        String(Number(parts[0])).padStart(2, "0");
+
+    const month =
+        String(Number(parts[1])).padStart(2, "0");
+
+    const year =
+        parts[2];
+
+    return `${day}-${month}-${year}`;
 }

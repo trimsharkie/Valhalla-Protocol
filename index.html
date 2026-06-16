@@ -16,7 +16,7 @@
 <body>
 
     <h1>⚔️ Valhalla Protocol</h1>
-    <p>Berserker Tracker v2.0</p>
+    <p>Berserker Tracker v2.2</p>
 
     <div class="tabs">
         <button onclick="showTab('trainingTab')">⚔️ Nieuwe Training</button>
@@ -24,6 +24,7 @@
         <button onclick="showTab('recordsTab')">🏆 Records</button>
         <button onclick="showTab('dashboardTab')">📊 Dashboard</button>
         <button onclick="showTab('progressTab')">📈 Progressie</button>
+        <button onclick="showTab('calendarTab')">📅 Kalender</button>
     </div>
 
     <div id="trainingTab">
@@ -63,6 +64,7 @@
         <button onclick="copyReport()">Kopieer rapport</button>
         <button onclick="clearTraining()">Nieuwe training</button>
         <button onclick="saveTraining()">Training opslaan</button>
+        
 
         <h2>Rapport</h2>
         <textarea id="report"></textarea>
@@ -92,6 +94,17 @@
         <div id="progressList"></div>
         <canvas id="progressChart"></canvas>
     </div>
-        <script src="app.js"></script>
+
+    <div id="calendarTab" style="display:none;">
+        <h2>📅 Kalender</h2>
+
+        <button onclick="changeCalendarMonth(-1)">⬅️ Vorige maand</button>
+        <button onclick="changeCalendarMonth(1)">Volgende maand ➡️</button>
+
+        <h3 id="calendarTitle"></h3>
+        <div id="calendar"></div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

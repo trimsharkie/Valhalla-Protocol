@@ -61,3 +61,46 @@ button:hover {
     border-radius: 8px;
     padding: 10px;
 }
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.calendar-header div {
+    text-align: center;
+    font-weight: bold;
+    color: #f0b429;
+}
+
+.calendar-day {
+    background: #1c1c1c;
+    min-height: 55px;
+    border-radius: 8px;
+    padding: 6px;
+    text-align: center;
+}
+
+.calendar-day.trained {
+    background: #2a2415;
+    border: 1px solid #f0b429;
+}
+
+.calendar-day strong {
+    display: block;
+    margin-top: 6px;
+}
+
+.calendar-day.empty {
+    background: transparent;
+}
+
+.calendar-day strong {
+    display: block;
+    margin-top: 6px;
+    color: #f0b429;
+    font-size: 18px;
+    font-weight: bold;
+}
