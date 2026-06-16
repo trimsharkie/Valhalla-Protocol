@@ -17,6 +17,7 @@ populateExercises();
 renderSets();
 renderHistory();
 renderRecords();
+renderDashboard();
 
 document
     .getElementById("trainingType")
@@ -267,6 +268,7 @@ function saveTraining() {
     clearTraining(false);
     renderHistory();
     renderRecords();
+    renderDashboard();
     showLastPerformance();
 }
 
@@ -322,6 +324,7 @@ function deleteTraining(index) {
     saveHistory();
     renderHistory();
     renderRecords();
+    renderDashboard();
     showLastPerformance();
 }
 
@@ -401,6 +404,7 @@ function showTab(tabId) {
     document.getElementById("trainingTab").style.display = "none";
     document.getElementById("historyTab").style.display = "none";
     document.getElementById("recordsTab").style.display = "none";
+    document.getElementById("dashboardTab").style.display = "none";
 
     document.getElementById(tabId).style.display = "block";
 }
@@ -447,4 +451,89 @@ function renderRecords() {
     }
 
     recordsList.innerHTML = html;
+}
+
+function renderDashboard() {
+    const dashboard =
+        document.getElementById("dashboard");
+
+    if (!dashboard) return;
+
+    const totalTrainings =
+        trainingHistory.length;
+
+    const currentMonth =
+        new Date().getMonth();
+
+    const currentYear =
+        new Date().getFullYear();
+
+    const trainingsThisMonth =
+        trainingHistory.filter(training => {
+            const parts = training.date.split("-");
+            const trainingDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+            return (
+                trainingDate.getMonth() === currentMonth &&
+                trainingDate.getFullYear() === currentYear
+            );
+        }).length;
+
+    const records = {};
+
+    trainingHistory.forEach(training => {
+        training.sets.forEach(set => {
+            if (
+                !records[set.exercise] ||
+                set.weight > records[set.exercise]
+            ) {
+                records[set.exercise] = set.weight;
+            }
+        });
+    });
+
+    const recordCount =
+        Object.keys(records).length;
+
+    const lastTraining =
+        trainingHistory[0];
+
+    let topRecordsHtml = "";
+
+    Object.keys(records)
+        .sort((a, b) => records[b] - records[a])
+        .slice(0, 5)
+        .forEach(exercise => {
+            topRecordsHtml += `
+                <div class="record-item">
+                    🏆 ${exercise} - ${records[exercise]} kg
+                </div>
+            `;
+        });
+
+    dashboard.innerHTML = `
+        <div class="dashboard-card">
+            <strong>Totaal trainingen:</strong> ${totalTrainings}
+        </div>
+
+        <div class="dashboard-card">
+            <strong>Trainingen deze maand:</strong> ${trainingsThisMonth}
+        </div>
+
+        <div class="dashboard-card">
+            <strong>Aantal records:</strong> ${recordCount}
+        </div>
+
+        <div class="dashboard-card">
+            <strong>Laatste training:</strong><br>
+            ${
+                lastTraining
+                    ? `${lastTraining.trainingType} - ${lastTraining.date}`
+                    : "Nog geen training"
+            }
+        </div>
+
+        <h3>🔥 Top records</h3>
+        ${topRecordsHtml || "<p>Nog geen records.</p>"}
+    `;
 }
