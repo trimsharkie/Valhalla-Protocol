@@ -18,6 +18,7 @@ renderSets();
 renderHistory();
 renderRecords();
 renderDashboard();
+renderProgress();
 
 document
     .getElementById("trainingType")
@@ -269,6 +270,7 @@ function saveTraining() {
     renderHistory();
     renderRecords();
     renderDashboard();
+    renderProgress();
     showLastPerformance();
 }
 
@@ -312,6 +314,11 @@ function loadTraining(index) {
     populateExercises();
     renderSets();
 
+    renderRecords();
+    renderDashboard();
+    populateProgressExercises();
+    renderProgress();
+
     alert("Training geladen.");
 }
 
@@ -325,6 +332,7 @@ function deleteTraining(index) {
     renderHistory();
     renderRecords();
     renderDashboard();
+    renderProgress();
     showLastPerformance();
 }
 
@@ -405,6 +413,7 @@ function showTab(tabId) {
     document.getElementById("historyTab").style.display = "none";
     document.getElementById("recordsTab").style.display = "none";
     document.getElementById("dashboardTab").style.display = "none";
+    document.getElementById("progressTab").style.display = "none";
 
     document.getElementById(tabId).style.display = "block";
 }
@@ -536,4 +545,90 @@ function renderDashboard() {
         <h3>🔥 Top records</h3>
         ${topRecordsHtml || "<p>Nog geen records.</p>"}
     `;
+}
+
+function populateProgressExercises() {
+    const dropdown = document.getElementById("progressExercise");
+
+    if (!dropdown) return;
+
+    const exercises = new Set();
+
+    trainingHistory.forEach(training => {
+        training.sets.forEach(set => {
+            exercises.add(set.exercise);
+        });
+    });
+
+    dropdown.innerHTML = "";
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Kies een oefening";
+    dropdown.appendChild(defaultOption);
+
+    Array.from(exercises)
+        .sort()
+        .forEach(exercise => {
+            const option = document.createElement("option");
+            option.value = exercise;
+            option.textContent = exercise;
+            dropdown.appendChild(option);
+        });
+}
+
+function renderProgress() {
+    const selectedExercise =
+        document.getElementById("progressExercise")?.value;
+
+    const progressList =
+        document.getElementById("progressList");
+
+    if (!progressList) return;
+
+    if (!selectedExercise) {
+        progressList.innerHTML = "<p>Kies een oefening om progressie te bekijken.</p>";
+        return;
+    }
+
+    const progressData = [];
+
+    trainingHistory.forEach(training => {
+        const setsForExercise =
+            training.sets.filter(set => set.exercise === selectedExercise);
+
+        if (setsForExercise.length === 0) return;
+
+        const bestWeight =
+            Math.max(...setsForExercise.map(set => set.weight));
+
+        progressData.push({
+            date: training.date,
+            weight: bestWeight
+        });
+    });
+
+    if (progressData.length === 0) {
+        progressList.innerHTML = "<p>Geen progressie gevonden.</p>";
+        return;
+    }
+
+    progressData.reverse();
+
+    let html = `
+        <h3>${selectedExercise}</h3>
+        <div class="progress-list">
+    `;
+
+    progressData.forEach(entry => {
+        html += `
+            <div class="progress-item">
+                📅 ${entry.date} - 🏆 ${entry.weight} kg
+            </div>
+        `;
+    });
+
+    html += "</div>";
+
+    progressList.innerHTML = html;
 }
