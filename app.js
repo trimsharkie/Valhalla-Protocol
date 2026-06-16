@@ -552,11 +552,20 @@ function populateProgressExercises() {
 
     if (!dropdown) return;
 
+    const currentValue = dropdown.value;
     const exercises = new Set();
 
+    // Oefeningen uit opgeslagen trainingen
     trainingHistory.forEach(training => {
         training.sets.forEach(set => {
             exercises.add(set.exercise);
+        });
+    });
+
+    // Oefeningen uit oefenbibliotheek
+    Object.keys(exerciseLibrary).forEach(trainingType => {
+        exerciseLibrary[trainingType].forEach(exercise => {
+            exercises.add(exercise);
         });
     });
 
@@ -575,6 +584,8 @@ function populateProgressExercises() {
             option.textContent = exercise;
             dropdown.appendChild(option);
         });
+
+    dropdown.value = currentValue;
 }
 
 function renderProgress() {
