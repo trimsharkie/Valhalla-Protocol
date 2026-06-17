@@ -1,18 +1,16 @@
 {
-  "id": "./",
   "name": "Valhalla Protocol",
   "short_name": "Valhalla",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/Valhalla-Protocol/index.html?v=27",
+  "scope": "/Valhalla-Protocol/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "./icon-512.png",
+      "src": "/Valhalla-Protocol/icon-512.png?v=27",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
