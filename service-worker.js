@@ -1,6 +1,4 @@
-const CACHE_NAME = "valhalla-v29";
-
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
