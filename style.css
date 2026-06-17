@@ -127,19 +127,20 @@ button:hover {
     margin-top: 10px;
 }
 
-/* ── LOGIN SCREEN ── */
+/* ── LOGIN SCREEN MOBILE FIRST ── */
 
 #loginScreen {
     min-height: 100vh;
+    background: #111;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    background: #111;
-    padding: 16px;
+    justify-content: flex-start;
+
+    padding: 8px;
+    overflow-x: hidden;
 }
 
-/* Wrapper is the positioning anchor for all overlaid elements */
 .login-art-wrapper {
     position: relative;
     width: 100%;
@@ -150,136 +151,174 @@ button:hover {
     width: 100%;
     display: block;
     border-radius: 22px;
-    /* prevent the image itself from capturing pointer events in fields area */
     pointer-events: none;
     user-select: none;
 }
 
-/* ── OVERLAID INPUTS ──
-   Cover the full painted field row (including icon column).
-   Positioned to sit exactly over the artwork's email/password boxes.
-*/
+/* ── LOGIN INPUTS OVER ARTWORK ── */
 
-.art-email,
-.art-password {
+#loginScreen .art-email,
+#loginScreen .art-password {
     position: absolute;
+
     left: 13%;
     width: 74%;
-    height: 5.0%;
+    height: 5%;
+
+    margin: 0;
+    padding: 0 34px 0 38px;
+
     background: #0e0b07;
     color: #c89b3c;
-    border: 1px solid #4a3510;
-    border-radius: 7px;
-    outline: none;
-    padding: 0 36px 0 40px;
-    margin: 0;
-    font-size: clamp(13px, 3.8vw, 15px);
     caret-color: #c89b3c;
+
+    border: 1px solid #4a3510;
+    border-radius: 8px;
+    outline: none;
+
+    font-size: clamp(12px, 3.4vw, 15px);
+    font-weight: 500;
 }
 
-.art-email:focus,
-.art-password:focus {
+#loginScreen .art-email {
+    top: 66.5%;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m2 7 10 7 10-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 17px 17px;
+}
+
+#loginScreen .art-password {
+    top: 73.5%;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 17px 17px;
+}
+
+#loginScreen .art-email::placeholder,
+#loginScreen .art-password::placeholder {
+    color: transparent;
+}
+
+#loginScreen .art-email:focus,
+#loginScreen .art-password:focus {
     border-color: #c49a2e;
     box-shadow: 0 0 0 2px rgba(192, 148, 40, 0.18);
 }
 
-/* Envelope icon for email */
-.art-email {
-    top: 66.5%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m2 7 10 7 10-7'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 11px center;
-    background-size: 18px 18px;
+/* Autofill fix */
+
+#loginScreen .art-email:-webkit-autofill,
+#loginScreen .art-password:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #0e0b07 inset !important;
+    -webkit-text-fill-color: #c89b3c !important;
+    transition: background-color 9999s ease-in-out 0s;
 }
 
-/* Lock icon for password */
-.art-password {
-    top: 73.5%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 11px center;
-    background-size: 18px 18px;
-}
+/* ── PASSWORD EYE ── */
 
-.art-email::placeholder,
-.art-password::placeholder {
-    color: #5a4f3a;
-}
-
-/* Eye toggle — aligned to the password field */
-.art-pw-toggle {
+#loginScreen .art-pw-toggle {
     position: absolute;
+
     top: 73.5%;
     right: 14%;
+
     width: 6%;
-    height: 5.0%;
+    height: 5%;
+
+    margin: 0;
+    padding: 0;
+
     background: transparent;
     border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
+    box-shadow: none;
+
+    color: #b8872a;
+    opacity: 0.55;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(12px, 3vw, 15px);
-    opacity: 0.55;
-    color: #b8872a;
+
+    font-size: clamp(11px, 3vw, 15px);
+    cursor: pointer;
 }
 
-.art-pw-toggle:hover {
+#loginScreen .art-pw-toggle:hover {
     background: transparent;
     opacity: 0.9;
 }
 
-/* Autofill override — prevents browser painting yellow/blue over the dark field */
-.art-email:-webkit-autofill,
-.art-password:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px #0e0b07 inset !important;
-    -webkit-text-fill-color: #d4c9b0 !important;
-    transition: background-color 9999s ease-in-out 0s;
-}
+/* ── CLICKABLE ARTWORK BUTTONS ── */
 
-/* ── OVERLAID BUTTONS ── */
-
-.art-login-btn,
-.art-register-btn {
+#loginScreen .art-login-btn,
+#loginScreen .art-register-btn {
     position: absolute;
+
     left: 13%;
     width: 74%;
     height: 6%;
+
+    margin: 0;
+    padding: 0;
+
     background: transparent;
     color: transparent;
     border: none;
+    box-shadow: none;
+
     cursor: pointer;
-    padding: 0;
-    margin: 0;
-    /* uncomment to debug hit areas: */
-    /* outline: 2px solid red; */
 }
 
-/* Override the global button styles that would break the overlay */
-.art-login-btn:hover,
-.art-register-btn:hover {
+#loginScreen .art-login-btn {
+    top: 79%;
+}
+
+#loginScreen .art-register-btn {
+    top: 86.5%;
+}
+
+#loginScreen .art-login-btn:hover,
+#loginScreen .art-register-btn:hover {
     background: transparent;
 }
 
-.art-login-btn:active,
-.art-register-btn:active {
+#loginScreen .art-login-btn:active,
+#loginScreen .art-register-btn:active {
     transform: scale(0.98);
 }
-
-.art-login-btn    { top: 79%; }
-.art-register-btn { top: 86.5%; }
 
 /* ── AUTH MESSAGE ── */
 
 #authMessage {
     text-align: center;
-    color: #f0b429;
-    margin-top: 14px;
+    color: #c89b3c;
+    margin-top: 10px;
     min-height: 1.4em;
     font-size: 14px;
     max-width: 420px;
     width: 100%;
     padding: 0 16px;
+}
+
+/* ── SMALL MOBILE TWEAKS ── */
+
+@media (max-width: 480px) {
+    #loginScreen {
+        padding: 4px;
+    }
+
+    .login-art-wrapper {
+        max-width: 100%;
+    }
+
+    #loginScreen .art-email,
+    #loginScreen .art-password {
+        font-size: 13px;
+        padding-left: 36px;
+        padding-right: 32px;
+    }
 }
