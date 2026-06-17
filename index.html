@@ -9,112 +9,135 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="manifest" href="/Valhalla-Protocol/manifest.json">
     <link rel="icon" href="/Valhalla-Protocol/icon-512.png">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <meta name="theme-color" content="#000000">
 </head>
 <body>
 
-    <h1>⚔️ Valhalla Protocol</h1>
-    <p>Berserker Tracker v2.3</p>
+    <div id="loginScreen">
+        <img src="/Valhalla-Protocol/icon-512.png" width="200" alt="Valhalla Protocol Logo">
 
-    <div class="tabs">
-        <button onclick="showTab('trainingTab')">⚔️ Nieuwe Training</button>
-        <button onclick="showTab('historyTab')">📜 Historie</button>
-        <button onclick="showTab('recordsTab')">🏆 Records</button>
-        <button onclick="showTab('dashboardTab')">📊 Dashboard</button>
-        <button onclick="showTab('progressTab')">📈 Progressie</button>
-        <button onclick="showTab('calendarTab')">📅 Kalender</button>
+        <h1>⚔️ Valhalla Protocol</h1>
+        <p>Berserker Tracker</p>
+
+        <input id="loginEmail" type="email" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Wachtwoord">
+
+        <button id="loginBtn">ENTER VALHALLA</button>
+        <button id="registerBtn">Account maken</button>
+
+        <p id="authMessage"></p>
     </div>
 
-    <div id="trainingTab">
-        <label>Training type</label>
-        <select id="trainingType">
-            <option>Upper</option>
-            <option>Lower</option>
-            <option>Full Body</option>
-            <option>Cardio</option>
-            <option>Custom</option>
-        </select>
+    <div id="appScreen" style="display:none;">
 
-        <h2>Oefening toevoegen</h2>
-        <input id="newExercise" placeholder="Nieuwe oefening toevoegen">
-        <button onclick="addExercise()">Oefening opslaan</button>
-        <button onclick="deleteExercise()">Oefening verwijderen</button>
+        <h1>⚔️ Valhalla Protocol</h1>
+        <p>Berserker Tracker v2.4</p>
 
-        <h2>Set toevoegen</h2>
-        <select id="exercise"></select>
+        <button id="logoutBtn">Uitloggen</button>
 
-        <div id="lastPerformance"></div>
+        <div class="tabs">
+            <button onclick="showTab('trainingTab')">⚔️ Nieuwe Training</button>
+            <button onclick="showTab('historyTab')">📜 Historie</button>
+            <button onclick="showTab('recordsTab')">🏆 Records</button>
+            <button onclick="showTab('dashboardTab')">📊 Dashboard</button>
+            <button onclick="showTab('progressTab')">📈 Progressie</button>
+            <button onclick="showTab('calendarTab')">📅 Kalender</button>
+        </div>
 
-        <br>
+        <div id="trainingTab">
+            <label>Training type</label>
+            <select id="trainingType">
+                <option>Upper</option>
+                <option>Lower</option>
+                <option>Full Body</option>
+                <option>Cardio</option>
+                <option>Custom</option>
+            </select>
 
-        <input id="weight" type="number" placeholder="KG">
-        <input id="reps" type="number" placeholder="Reps">
+            <h2>Oefening toevoegen</h2>
+            <input id="newExercise" placeholder="Nieuwe oefening toevoegen">
+            <button onclick="addExercise()">Oefening opslaan</button>
+            <button onclick="deleteExercise()">Oefening verwijderen</button>
 
-        <button onclick="addSet()">Set toevoegen</button>
+            <h2>Set toevoegen</h2>
+            <select id="exercise"></select>
 
-        <h2>Training log</h2>
-        <div id="setList"></div>
+            <div id="lastPerformance"></div>
 
-        <h2>Opmerking</h2>
-        <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
+            <br>
 
-        <button onclick="generateReport()">Maak rapport</button>
-        <button onclick="copyReport()">Kopieer rapport</button>
-        <button onclick="clearTraining()">Nieuwe training</button>
-        <button onclick="saveTraining()">Training opslaan</button>
-        
+            <input id="weight" type="number" placeholder="KG">
+            <input id="reps" type="number" placeholder="Reps">
 
-        <h2>Rapport</h2>
-        <textarea id="report"></textarea>
+            <button onclick="addSet()">Set toevoegen</button>
+
+            <h2>Training log</h2>
+            <div id="setList"></div>
+
+            <h2>Opmerking</h2>
+            <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
+
+            <button onclick="generateReport()">Maak rapport</button>
+            <button onclick="copyReport()">Kopieer rapport</button>
+            <button onclick="clearTraining()">Nieuwe training</button>
+            <button onclick="saveTraining()">Training opslaan</button>
+
+            <h2>Rapport</h2>
+            <textarea id="report"></textarea>
+        </div>
+
+        <div id="historyTab" style="display:none;">
+            <h2>📜 Opgeslagen trainingen</h2>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="recordsTab" style="display:none;">
+            <h2>🏆 Records</h2>
+            <div id="recordsList"></div>
+        </div>
+
+        <div id="dashboardTab" style="display:none;">
+            <h2>📊 Dashboard</h2>
+            <div id="dashboard"></div>
+        </div>
+
+        <div id="progressTab" style="display:none;">
+            <h2>📈 Progressie</h2>
+
+            <label>Kies oefening</label>
+            <select id="progressExercise" onchange="renderProgress()"></select>
+
+            <div id="progressList"></div>
+            <canvas id="progressChart"></canvas>
+        </div>
+
+        <div id="calendarTab" style="display:none;">
+            <h2>📅 Kalender</h2>
+
+            <button onclick="changeCalendarMonth(-1)">⬅️ Vorige maand</button>
+            <button onclick="changeCalendarMonth(1)">Volgende maand ➡️</button>
+
+            <h3 id="calendarTitle"></h3>
+            <div id="calendar"></div>
+            <div id="calendarDetails"></div>
+        </div>
+
     </div>
 
-    <div id="historyTab" style="display:none;">
-        <h2>📜 Opgeslagen trainingen</h2>
-        <div id="historyList"></div>
-    </div>
-
-    <div id="recordsTab" style="display:none;">
-        <h2>🏆 Records</h2>
-        <div id="recordsList"></div>
-    </div>
-
-    <div id="dashboardTab" style="display:none;">
-        <h2>📊 Dashboard</h2>
-        <div id="dashboard"></div>
-    </div>
-
-    <div id="progressTab" style="display:none;">
-        <h2>📈 Progressie</h2>
-
-        <label>Kies oefening</label>
-        <select id="progressExercise" onchange="renderProgress()"></select>
-
-        <div id="progressList"></div>
-        <canvas id="progressChart"></canvas>
-    </div>
-
-    <div id="calendarTab" style="display:none;">
-        <h2>📅 Kalender</h2>
-
-        <button onclick="changeCalendarMonth(-1)">⬅️ Vorige maand</button>
-        <button onclick="changeCalendarMonth(1)">Volgende maand ➡️</button>
-
-
-
-        <h3 id="calendarTitle"></h3>
-        <div id="calendar"></div>
-        <div id="calendarDetails"></div>
-    </div>
-
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
+    <script type="module" src="./firebase.js"></script>
+    <script type="module" src="./auth.js"></script>
 
     <script>
-          if ("serviceWorker" in navigator) {
+        if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=29")
                 .then(() => console.log("Service worker geregistreerd"))
                 .catch(error => console.error("Service worker fout:", error));
-  }
-</script>
+        }
+    </script>
+
 </body>
 </html>
