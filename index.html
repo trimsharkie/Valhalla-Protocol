@@ -17,18 +17,46 @@
 <body>
 
     <div id="loginScreen">
-        <img src="/Valhalla-Protocol/icon-512.png" width="200" alt="Valhalla Protocol Logo">
 
-        <h1>⚔️ Valhalla Protocol</h1>
-        <p>Berserker Tracker</p>
+        <div class="login-art-wrapper">
 
-        <input id="loginEmail" type="email" placeholder="Email">
-        <input id="loginPassword" type="password" placeholder="Wachtwoord">
+            <img
+                src="./assets/valhalla-login-art.png"
+                class="login-art-full"
+                alt="Valhalla Protocol"
+            >
 
-        <button id="loginBtn">ENTER VALHALLA</button>
-        <button id="registerBtn">Account maken</button>
+            <input
+                id="loginEmail"
+                class="art-email"
+                type="email"
+                placeholder="Email"
+                autocomplete="email"
+            >
+
+            <input
+                id="loginPassword"
+                class="art-password"
+                type="password"
+                placeholder="Wachtwoord"
+                autocomplete="current-password"
+            >
+
+            <button
+                type="button"
+                class="art-pw-toggle"
+                aria-label="Wachtwoord tonen/verbergen"
+                onclick="(function(){var i=document.getElementById('loginPassword');i.type=i.type==='password'?'text':'password';})()"
+            >👁</button>
+
+            <button id="loginBtn" class="art-login-btn" aria-label="Enter Valhalla"></button>
+
+            <button id="registerBtn" class="art-register-btn" aria-label="Account maken"></button>
+
+        </div>
 
         <p id="authMessage"></p>
+
     </div>
 
     <div id="appScreen" style="display:none;">
