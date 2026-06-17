@@ -1,16 +1,17 @@
 {
-  "name": "Valhalla Protocol Test",
-  "short_name": "Valhallatest",
-  "start_url": "/Valhalla-Protocol/index.html?v=27",
+  "name": "Valhalla Protocol",
+  "short_name": "Valhalla",
+  "start_url": "/Valhalla-Protocol/index.html?v=29",
   "scope": "/Valhalla-Protocol/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/Valhalla-Protocol/icon-512.png?v=27",
+      "src": "/Valhalla-Protocol/icon-512.png?v=29",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

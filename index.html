@@ -6,11 +6,10 @@
 
     <title>Valhalla Protocol</title>
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="/Valhalla-Protocol/manifest.json?v=28">
-    <link rel="icon" href="icon-512.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="manifest" href="/Valhalla-Protocol/manifest.json?v=29">
+    <link rel="icon" href="/Valhalla-Protocol/icon-512.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <meta name="theme-color" content="#000000">
 </head>
 <body>
@@ -111,9 +110,11 @@
     <script src="app.js"></script>
 
     <script>
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("./service-worker.js");
-        }
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=29")
+                .then(() => console.log("Service worker geregistreerd"))
+                .catch(error => console.error("Service worker fout:", error));
+  }
 </script>
 </body>
 </html>
