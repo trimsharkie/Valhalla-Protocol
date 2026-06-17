@@ -161,9 +161,9 @@ button:hover {
 #loginScreen .art-password {
     position: absolute;
 
-    left: 13%;
-    width: 74%;
-    height: 5%;
+    left: 10%;
+    width: 80%;
+    height: 5.8%;
 
     margin: 0;
     padding: 0 34px 0 38px;
@@ -181,7 +181,7 @@ button:hover {
 }
 
 #loginScreen .art-email {
-    top: 66.5%;
+    top: 64.5%;
 
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m2 7 10 7 10-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -190,7 +190,7 @@ button:hover {
 }
 
 #loginScreen .art-password {
-    top: 73.5%;
+    top: 71%;
 
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8872a' stroke-width='1.8'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -223,8 +223,8 @@ button:hover {
 #loginScreen .art-pw-toggle {
     position: absolute;
 
-    top: 73.5%;
-    right: 14%;
+    top: 71%;
+    right: 11%;
 
     width: 6%;
     height: 5%;
@@ -254,13 +254,12 @@ button:hover {
 
 /* ── CLICKABLE ARTWORK BUTTONS ── */
 
-#loginScreen .art-login-btn,
-#loginScreen .art-register-btn {
+#loginScreen .art-login-btn {
     position: absolute;
 
-    left: 13%;
-    width: 74%;
-    height: 6%;
+    left: 10%;
+    width: 80%;
+    height: 6.5%;
 
     margin: 0;
     padding: 0;
@@ -274,22 +273,17 @@ button:hover {
 }
 
 #loginScreen .art-login-btn {
-    top: 79%;
+    top: 76%;
 }
 
-#loginScreen .art-register-btn {
-    top: 86.5%;
-}
-
-#loginScreen .art-login-btn:hover,
-#loginScreen .art-register-btn:hover {
+#loginScreen .art-login-btn:hover {
     background: transparent;
 }
 
-#loginScreen .art-login-btn:active,
-#loginScreen .art-register-btn:active {
+#loginScreen .art-login-btn:active {
     transform: scale(0.98);
 }
+
 
 /* ── AUTH MESSAGE ── */
 
@@ -326,7 +320,6 @@ button:hover {
 #loginScreen .art-email,
 #loginScreen .art-password,
 #loginScreen .art-login-btn,
-#loginScreen .art-register-btn,
 #loginScreen .art-pw-toggle {
     position: absolute !important;
 }
@@ -341,10 +334,10 @@ button:hover {
 }
 
 #loginScreen .art-login-btn,
-#loginScreen .art-register-btn,
 #loginScreen .art-pw-toggle {
     display: block !important;
     margin: 0 !important;
     background: transparent !important;
     color: transparent !important;
 }
+
