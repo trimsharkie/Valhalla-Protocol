@@ -1,6 +1,6 @@
 {
-  "name": "Valhalla Protocol",
-  "short_name": "Valhalla",
+  "name": "Valhalla Protocol Test",
+  "short_name": "Valhallatest",
   "start_url": "/Valhalla-Protocol/index.html?v=27",
   "scope": "/Valhalla-Protocol/",
   "display": "standalone",
