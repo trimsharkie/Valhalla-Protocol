@@ -322,3 +322,29 @@ button:hover {
         padding-right: 32px;
     }
 }
+
+#loginScreen .art-email,
+#loginScreen .art-password,
+#loginScreen .art-login-btn,
+#loginScreen .art-register-btn,
+#loginScreen .art-pw-toggle {
+    position: absolute !important;
+}
+
+#loginScreen .art-email,
+#loginScreen .art-password {
+    display: block !important;
+    left: 13% !important;
+    width: 74% !important;
+    height: 5% !important;
+    margin: 0 !important;
+}
+
+#loginScreen .art-login-btn,
+#loginScreen .art-register-btn,
+#loginScreen .art-pw-toggle {
+    display: block !important;
+    margin: 0 !important;
+    background: transparent !important;
+    color: transparent !important;
+}

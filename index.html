@@ -6,7 +6,7 @@
 
     <title>Valhalla Protocol</title>
 
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=33">
     <link rel="manifest" href="/Valhalla-Protocol/manifest.json">
     <link rel="icon" href="/Valhalla-Protocol/icon-512.png">
 
@@ -161,7 +161,7 @@
 
     <script>
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=29")
+            navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=33")
                 .then(() => console.log("Service worker geregistreerd"))
                 .catch(error => console.error("Service worker fout:", error));
         }
