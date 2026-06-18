@@ -388,3 +388,76 @@ label {
     background: transparent !important;
     color: transparent !important;
 }
+
+#toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+
+    background: #1c1c1c;
+    color: #f0b429;
+
+    border: 1px solid #f0b429;
+    border-radius: 10px;
+
+    padding: 14px 18px;
+
+    font-weight: bold;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.3s ease;
+
+    z-index: 9999;
+}
+
+#toast.show {
+    opacity: 1;
+}
+
+.set-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.set-actions button {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+#restTimer {
+    display: none;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    padding: 14px;
+    background: #1c1c1c;
+    border: 1px solid #f0b429;
+    border-radius: 8px;
+    color: #f0b429;
+    font-weight: bold;
+    text-align: center;
+}
+.history-item {
+    background: #1c1c1c;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.history-details {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #333;
+}
+
+.history-exercise {
+    margin-bottom: 18px;
+}
+
+.history-notes {
+    margin-top: 20px;
+    color: #d0d0d0;
+}

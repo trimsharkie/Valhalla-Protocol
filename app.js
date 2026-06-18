@@ -12,6 +12,9 @@ let trainingHistory = [];
 let progressChart = null;
 let calendarDate = new Date();
 
+let restTimerInterval = null;
+let restSeconds = 90;
+
 function getUserKey(key) {
     if (!window.currentUser) {
         return key;
@@ -69,7 +72,6 @@ window.loadUserData = function () {
     renderSets();
     renderHistory();
     renderRecords();
-    renderDashboard();
     populateProgressExercises();
     renderProgress();
     renderCalendar();
@@ -150,7 +152,7 @@ function addSet() {
     const reps = document.getElementById("reps").value;
 
     if (!exercise || !weight || !reps) {
-        alert("Vul oefening, kg en reps in.");
+        showToast("Vul oefening, kg en reps in.");
         return;
     }
 
@@ -160,26 +162,9 @@ function addSet() {
     const highestWeight = getHighestWeight(exercise);
 
     if (highestWeight === 0) {
-        alert(
-`⚔️ Eerste geregistreerde gewicht
-
-${exercise}
-
-Record gezet:
-${numericWeight} kg`
-        );
+        showToast(`${exercise} eerste record: ${numericWeight} kg`);
     } else if (numericWeight > highestWeight) {
-        alert(
-`🔥 NEW WEIGHT PR ⚔️
-
-${exercise}
-
-Oud record:
-${highestWeight} kg
-
-Nieuw record:
-${numericWeight} kg`
-        );
+        showToast(`${exercise} PR! ${highestWeight} → ${numericWeight} kg`);
     }
 
     sets.push({
@@ -202,6 +187,27 @@ function deleteSet(index) {
     renderSets();
 }
 
+function editSet(index) {
+
+    const set = sets[index];
+
+    document.getElementById("exercise").value =
+        set.exercise;
+
+    document.getElementById("weight").value =
+        set.weight;
+
+    document.getElementById("reps").value =
+        set.reps;
+
+    sets.splice(index, 1);
+
+    saveSets();
+    renderSets();
+
+    document.getElementById("weight").focus();
+}
+
 function renderSets() {
     const setList = document.getElementById("setList");
 
@@ -217,10 +223,22 @@ function renderSets() {
         div.className = "set-item";
 
         div.innerHTML = `
-            ${index + 1}. ${set.exercise} - ${set.weight} kg x ${set.reps}
-            <button onclick="deleteSet(${index})">Verwijder</button>
-        `;
+            <strong>
+            ${index + 1}. ${set.exercise}
+            </strong>
+            <br>
+            ${set.weight} kg x ${set.reps}
 
+        <div class="set-actions">
+            <button onclick="editSet(${index})">
+               Bewerken
+            </button>
+
+        <button onclick="deleteSet(${index})">
+            Verwijder
+        </button>
+    </div>
+`;
         setList.appendChild(div);
     });
 }
@@ -270,7 +288,7 @@ Opmerkingen: ${notes}
 
 function saveTraining() {
     if (sets.length === 0) {
-        alert("Je hebt nog geen sets toegevoegd.");
+        showToast("Je hebt nog geen sets toegevoegd.");
         return;
     }
 
@@ -287,12 +305,11 @@ function saveTraining() {
     trainingHistory.unshift(training);
     saveHistory();
 
-    alert("Training opgeslagen!");
+    showToast("Training opgeslagen!");
 
     clearTraining(false);
     renderHistory();
     renderRecords();
-    renderDashboard();
     populateProgressExercises();
     renderProgress();
     renderCalendar();
@@ -318,33 +335,74 @@ function renderHistory() {
         div.innerHTML = `
             <strong>${training.date} - ${training.trainingType}</strong><br>
             Sets: ${training.sets.length}<br>
-            <button onclick="loadTraining(${index})">Bekijk</button>
-            <button onclick="deleteTraining(${index})">Verwijder</button>
+
+            <button onclick="toggleHistoryDetails(${index})">
+                Bekijk Rapport
+            </button>
+
+            <button onclick="deleteTraining(${index})">
+                Verwijder
+            </button>
+
+            <div id="historyDetails-${index}" class="history-details" style="display:none;"></div>
         `;
 
         historyList.appendChild(div);
     });
 }
 
-function loadTraining(index) {
+function toggleHistoryDetails(index) {
     const training = trainingHistory[index];
+    const details = document.getElementById(`historyDetails-${index}`);
 
-    sets = [...training.sets];
+    if (!details) return;
 
-    document.getElementById("trainingType").value = training.trainingType;
-    document.getElementById("notes").value = training.notes;
-   
-    saveSets();
-    populateExercises();
-    renderSets();
+    if (details.style.display === "block") {
+        details.style.display = "none";
+        details.innerHTML = "";
+        return;
+    }
 
-    renderRecords();
-    renderDashboard();
-    populateProgressExercises();
-    renderProgress();
-    renderCalendar();
+    const grouped = {};
 
-    alert("Training geladen.");
+    training.sets.forEach(set => {
+        if (!grouped[set.exercise]) {
+            grouped[set.exercise] = [];
+        }
+
+        grouped[set.exercise].push(set);
+    });
+
+    let html = `<div class="history-report">`;
+
+    Object.keys(grouped).forEach(exercise => {
+        html += `
+            <div class="history-exercise">
+                <strong>${exercise}</strong>
+        `;
+
+        grouped[exercise].forEach(set => {
+            html += `
+                <div>${set.weight} kg x ${set.reps}</div>
+            `;
+        });
+
+        html += `</div>`;
+    });
+
+    if (training.notes) {
+        html += `
+            <div class="history-notes">
+                <strong>Opmerking</strong><br>
+                ${training.notes}
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    details.innerHTML = html;
+    details.style.display = "block";
 }
 
 function deleteTraining(index) {
@@ -357,7 +415,6 @@ function deleteTraining(index) {
 
     renderHistory();
     renderRecords();
-    renderDashboard();
     populateProgressExercises();
     renderProgress();
     renderCalendar();
@@ -443,7 +500,6 @@ function showTab(tabId) {
     document.getElementById("trainingTab").style.display = "none";
     document.getElementById("historyTab").style.display = "none";
     document.getElementById("recordsTab").style.display = "none";
-    document.getElementById("dashboardTab").style.display = "none";
     document.getElementById("progressTab").style.display = "none";
     document.getElementById("calendarTab").style.display = "none";
 
@@ -485,81 +541,6 @@ function renderRecords() {
     }
 
     recordsList.innerHTML = html;
-}
-
-function renderDashboard() {
-    const dashboard = document.getElementById("dashboard");
-
-    if (!dashboard) return;
-
-    const totalTrainings = trainingHistory.length;
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-
-    const trainingsThisMonth =
-        trainingHistory.filter(training => {
-            const trainingDate = parseDutchDate(training.date);
-
-            return (
-                trainingDate.getMonth() === currentMonth &&
-                trainingDate.getFullYear() === currentYear
-            );
-        }).length;
-
-    const records = {};
-
-    trainingHistory.forEach(training => {
-        training.sets.forEach(set => {
-            if (
-                !records[set.exercise] ||
-                set.weight > records[set.exercise]
-            ) {
-                records[set.exercise] = set.weight;
-            }
-        });
-    });
-
-    const recordCount = Object.keys(records).length;
-    const lastTraining = trainingHistory[0];
-
-    let topRecordsHtml = "";
-
-    Object.keys(records)
-        .sort((a, b) => records[b] - records[a])
-        .slice(0, 5)
-        .forEach(exercise => {
-            topRecordsHtml += `
-                <div class="record-item">
-                    🏆 ${exercise} - ${records[exercise]} kg
-                </div>
-            `;
-        });
-
-    dashboard.innerHTML = `
-        <div class="dashboard-card">
-            <strong>Totaal trainingen:</strong> ${totalTrainings}
-        </div>
-
-        <div class="dashboard-card">
-            <strong>Trainingen deze maand:</strong> ${trainingsThisMonth}
-        </div>
-
-        <div class="dashboard-card">
-            <strong>Aantal records:</strong> ${recordCount}
-        </div>
-
-        <div class="dashboard-card">
-            <strong>Laatste training:</strong><br>
-            ${
-                lastTraining
-                    ? `${lastTraining.trainingType} - ${lastTraining.date}`
-                    : "Nog geen training"
-            }
-        </div>
-
-        <h3>🔥 Top records</h3>
-        ${topRecordsHtml || "<p>Nog geen records.</p>"}
-    `;
 }
 
 function populateProgressExercises() {
@@ -935,16 +916,23 @@ function showCalendarDetails(dateString) {
                 <h4>⚔️ ${training.trainingType}</h4>
         `;
 
-        training.sets.forEach(set => {
+    let lastExercise = "";
 
-            html += `
-                <div>
-                    ${set.exercise} -
-                    ${set.weight} kg x ${set.reps}
-                </div>
-            `;
+    training.sets.forEach(set => {
 
-        });
+        if (lastExercise && lastExercise !== set.exercise) {
+            html += `<br>`;
+        }
+
+    html += `
+        <div>
+            ${set.exercise} -
+            ${set.weight} kg x ${set.reps}
+        </div>
+    `;
+
+    lastExercise = set.exercise;
+});
 
         if (training.notes) {
 
@@ -963,4 +951,41 @@ function showCalendarDetails(dateString) {
     });
 
     details.innerHTML = html;
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+function startRestTimer(seconds = 90) {
+    const timerBox = document.getElementById("restTimer");
+    const timerText = document.getElementById("restTime");
+
+    if (!timerBox || !timerText) return;
+
+    clearInterval(restTimerInterval);
+
+    restSeconds = seconds;
+    timerText.textContent = restSeconds;
+    timerBox.style.display = "block";
+
+    restTimerInterval = setInterval(() => {
+        restSeconds--;
+        timerText.textContent = restSeconds;
+
+        if (restSeconds <= 0) {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            timerBox.style.display = "none";
+            showToast("Rust klaar");
+        }
+    }, 1000);
 }
