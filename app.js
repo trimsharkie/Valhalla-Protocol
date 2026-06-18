@@ -77,7 +77,6 @@ window.loadUserData = function () {
     renderCalendar();
     showLastPerformance();
 
-    console.log("User data geladen voor:", window.currentUser.email);
 };
 
 function populateExercises() {
@@ -106,7 +105,7 @@ function addExercise() {
     const newExercise = document.getElementById("newExercise").value.trim();
 
     if (!newExercise) {
-        alert("Vul een oefening in.");
+        showToast("Vul een oefening in.");
         return;
     }
 
@@ -130,7 +129,7 @@ function deleteExercise() {
     const exercise = document.getElementById("exercise").value;
 
     if (!exercise) {
-        alert("Selecteer eerst een oefening.");
+        showToast("Selecteer eerst een oefening.");
         return;
     }
 
@@ -988,4 +987,41 @@ function startRestTimer(seconds = 90) {
             showToast("Rust klaar");
         }
     }, 1000);
+}
+
+function editExercise() {
+
+    const oldExercise =
+        document.getElementById("exercise").value;
+
+    if (!oldExercise) {
+        showToast("Selecteer eerst een oefening.");
+        return;
+    }
+
+    const newExercise = prompt(
+        "Nieuwe naam:",
+        oldExercise
+    );
+
+    if (!newExercise) return;
+
+    const exercises =
+        JSON.parse(localStorage.getItem(getUserKey("exercises"))) || [];
+
+    const index =
+        exercises.indexOf(oldExercise);
+
+    if (index === -1) return;
+
+    exercises[index] = newExercise;
+
+    localStorage.setItem(
+        getUserKey("exercises"),
+        JSON.stringify(exercises)
+    );
+
+    populateExercises();
+
+    showToast("Oefening aangepast.");
 }

@@ -23,12 +23,17 @@ loginBtn.addEventListener("click", async () => {
     await signInWithEmailAndPassword(auth, email, password);
     authMessage.textContent = "";
   } catch (error) {
-    authMessage.textContent = "Login mislukt: " + error.message;
+    authMessage.textContent =
+      "Toegang geweigerd. Controleer je gegevens.";
   }
 });
 
 logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Logout fout:", error);
+  }
 });
 
 onAuthStateChanged(auth, (user) => {
@@ -38,8 +43,6 @@ onAuthStateChanged(auth, (user) => {
     loginScreen.style.display = "none";
     appScreen.style.display = "block";
 
-    console.log("Ingelogd als:", user.email);
-    console.log("User ID:", user.uid);
 
     if (typeof loadUserData === "function") {
       loadUserData();
@@ -51,6 +54,5 @@ onAuthStateChanged(auth, (user) => {
     loginScreen.style.display = "block";
     appScreen.style.display = "none";
 
-    console.log("Uitgelogd");
   }
 });

@@ -461,3 +461,11 @@ label {
     margin-top: 20px;
     color: #d0d0d0;
 }
+
+.history-report {
+    margin-top: 10px;
+}
+
+.history-report strong {
+    color: #f0b429;
+}
