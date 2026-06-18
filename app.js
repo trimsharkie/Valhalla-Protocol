@@ -263,25 +263,9 @@ Oefeningen:
 ${exerciseText}
 
 Opmerkingen: ${notes}
-
-Vraag aan ChatGPT:
-Geef een eerlijk cijfer, analyse, progressie en advies voor de volgende training.
 `;
 
-    document.getElementById("report").value = report.trim();
-}
-
-function copyReport() {
-    const report = document.getElementById("report").value;
-
-    if (!report) {
-        alert("Maak eerst een rapport.");
-        return;
-    }
-
-    navigator.clipboard.writeText(report)
-        .then(() => alert("Rapport gekopieerd!"))
-        .catch(() => alert("Kopiëren mislukt."));
+    return report.trim();
 }
 
 function saveTraining() {
@@ -290,14 +274,14 @@ function saveTraining() {
         return;
     }
 
-    generateReport();
+    const report = generateReport();
 
     const training = {
         date: new Date().toLocaleDateString("nl-NL"),
         trainingType: document.getElementById("trainingType").value,
         sets: [...sets],
         notes: document.getElementById("notes").value || "",
-        report: document.getElementById("report").value || ""
+        report: report
     };
 
     trainingHistory.unshift(training);
@@ -349,8 +333,7 @@ function loadTraining(index) {
 
     document.getElementById("trainingType").value = training.trainingType;
     document.getElementById("notes").value = training.notes;
-    document.getElementById("report").value = training.report || "";
-
+   
     saveSets();
     populateExercises();
     renderSets();
@@ -392,7 +375,6 @@ function clearTraining(askConfirm = true) {
 
     localStorage.removeItem(getUserKey("currentTrainingSets"));
 
-    document.getElementById("report").value = "";
     document.getElementById("notes").value = "";
 
     renderSets();
