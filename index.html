@@ -63,7 +63,7 @@
         <button id="logoutBtn">Uitloggen</button>
 
         <div class="tabs">
-            <button onclick="showTab('trainingTab')">⚔️ Nieuwe Training</button>
+            <button onclick="showTab('trainingTab')">Nieuwe Training</button>
             <button onclick="showTab('historyTab')">📜 Historie</button>
             <button onclick="showTab('recordsTab')">🏆 Records</button>
             <button onclick="showTab('dashboardTab')">📊 Dashboard</button>
@@ -72,7 +72,7 @@
         </div>
 
         <div id="trainingTab">
-            <label>Training type</label>
+            <h2>Training type</h2>
             <select id="trainingType">
                 <option>Upper</option>
                 <option>Lower</option>
@@ -81,10 +81,19 @@
                 <option>Custom</option>
             </select>
 
-            <h2>Oefening toevoegen</h2>
+
+
+        <h2>Oefening toevoegen</h2>
+
             <input id="newExercise" placeholder="Nieuwe oefening toevoegen">
-            <button onclick="addExercise()">Oefening opslaan</button>
-            <button onclick="deleteExercise()">Oefening verwijderen</button>
+
+            <button onclick="addExercise()">
+                Oefening opslaan
+            </button>
+
+            <button onclick="deleteExercise()">
+            Oefening verwijderen
+            </button>
 
             <h2>Set toevoegen</h2>
             <select id="exercise"></select>
@@ -104,7 +113,7 @@
             <h2>Opmerking</h2>
             <textarea id="notes" placeholder="Opmerkingen, klachten, pomp, PR, etc."></textarea>
 
-            <button onclick="clearTraining()">Nieuwe training</button>
+            <button onclick="clearTraining()">Training wissen</button>
             <button onclick="saveTraining()">Training opslaan</button>
 
         </div>
@@ -127,7 +136,7 @@
         <div id="progressTab" style="display:none;">
             <h2>📈 Progressie</h2>
 
-            <label>Kies oefening</label>
+            <h2>Kies oefening</h2>
             <select id="progressExercise" onchange="renderProgress()"></select>
 
             <div id="progressList"></div>

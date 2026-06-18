@@ -52,13 +52,6 @@ button:hover {
     background: #ffd166;
 }
 
-#setList {
-    background: #1c1c1c;
-    padding: 12px;
-    border-radius: 8px;
-    min-height: 80px;
-}
-
 .set-item {
     padding: 8px;
     border-bottom: 1px solid #333;
@@ -129,29 +122,59 @@ button:hover {
     width: auto;
     display: block;
     margin-left: auto;
-    margin-bottom: 16px;
+    margin-bottom: 25px;
     padding: 8px 14px;
     font-size: 14px;
 }
 
 .tabs {
-    margin-top: 0;
+    margin-bottom: 40px;
 }
 
 .tabs button {
-    margin: 4px 0;
-    padding: 10px;
+    margin: 8px 0;
+    padding: 14px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #d0d0d0;
+    font-size: 15px;
 }
 
 #trainingTab h2 {
-    margin-top: 28px;
+    margin-top: 60px;
+    margin-bottom: 20px;
 }
 
-#report {
+#trainingType,
+#exercise,
+#weight,
+#reps,
+#newExercise,
+#notes {
+    margin-bottom: 14px;
+}
+
+#setList {
+    background: #1c1c1c;
+    padding: 18px;
+    border-radius: 8px;
+    min-height: 80px;
+    margin-top: 15px;
+    margin-bottom: 40px;
+}
+
+#lastPerformance {
     display: none;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    color: #f0b429;
 }
-
-
 /* ── LOGIN SCREEN MOBILE FIRST ── */
 
 #loginScreen {
@@ -365,4 +388,3 @@ button:hover {
     background: transparent !important;
     color: transparent !important;
 }
-

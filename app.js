@@ -387,9 +387,11 @@ function showLastPerformance() {
     if (!box) return;
 
     if (!exercise) {
+        box.style.display = "none";
         box.innerHTML = "";
         return;
-    }
+}
+
 
     const lastTraining =
         trainingHistory.find(training =>
@@ -413,7 +415,9 @@ function showLastPerformance() {
     html += `<small>${lastTraining.date}</small>`;
 
     box.innerHTML = html;
+    box.style.display = "block";
 }
+
 
 function getHighestWeight(exercise) {
     let highestWeight = 0;
