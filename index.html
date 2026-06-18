@@ -6,7 +6,7 @@
 
     <title>Valhalla Protocol</title>
 
-    <link rel="stylesheet" href="./style.css?v=33">
+    <link rel="stylesheet" href="./style.css?v=34">
     <link rel="manifest" href="/Valhalla-Protocol/manifest.json">
     <link rel="icon" href="/Valhalla-Protocol/icon-512.png">
 
@@ -59,9 +59,6 @@
     </div>
 
     <div id="appScreen" style="display:none;">
-
-        <h1>⚔️ Valhalla Protocol</h1>
-        <p>Berserker Tracker v2.4</p>
 
         <button id="logoutBtn">Uitloggen</button>
 
@@ -150,13 +147,13 @@
 
     </div>
 
-    <script src="./app.js"></script>
+    <script src="./app.js?v=34"></script>
     <script type="module" src="./firebase.js"></script>
     <script type="module" src="./auth.js"></script>
 
     <script>
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=33")
+            navigator.serviceWorker.register("/Valhalla-Protocol/service-worker.js?v=34")
                 .then(() => console.log("Service worker geregistreerd"))
                 .catch(error => console.error("Service worker fout:", error));
         }
