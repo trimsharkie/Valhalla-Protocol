@@ -2,7 +2,6 @@ import { app } from "./firebase.js";
 
 import {
   getAuth,
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged
@@ -13,21 +12,8 @@ const auth = getAuth(app);
 const loginScreen = document.getElementById("loginScreen");
 const appScreen = document.getElementById("appScreen");
 const loginBtn = document.getElementById("loginBtn");
-const registerBtn = document.getElementById("registerBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const authMessage = document.getElementById("authMessage");
-
-registerBtn.addEventListener("click", async () => {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    authMessage.textContent = "⚔️ Account aangemaakt";
-  } catch (error) {
-    authMessage.textContent = error.message;
-  }
-});
 
 loginBtn.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
@@ -35,8 +21,9 @@ loginBtn.addEventListener("click", async () => {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    authMessage.textContent = "";
   } catch (error) {
-    authMessage.textContent = error.message;
+    authMessage.textContent = "Login mislukt: " + error.message;
   }
 });
 
@@ -46,10 +33,24 @@ logoutBtn.addEventListener("click", async () => {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    window.currentUser = user;
+
     loginScreen.style.display = "none";
     appScreen.style.display = "block";
+
+    console.log("Ingelogd als:", user.email);
+    console.log("User ID:", user.uid);
+
+    if (typeof loadUserData === "function") {
+      loadUserData();
+    }
+
   } else {
+    window.currentUser = null;
+
     loginScreen.style.display = "block";
     appScreen.style.display = "none";
+
+    console.log("Uitgelogd");
   }
 });

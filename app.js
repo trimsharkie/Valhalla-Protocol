@@ -1,29 +1,24 @@
-let sets =
-    JSON.parse(localStorage.getItem("currentTrainingSets")) || [];
+let sets = [];
 
-let exerciseLibrary =
-    JSON.parse(localStorage.getItem("exerciseLibrary")) || {
-        Upper: [],
-        Lower: [],
-        "Full Body": [],
-        Cardio: [],
-        Custom: []
-    };
+let exerciseLibrary = {
+    Upper: [],
+    Lower: [],
+    "Full Body": [],
+    Cardio: [],
+    Custom: []
+};
 
+let trainingHistory = [];
 let progressChart = null;
 let calendarDate = new Date();
 
-let trainingHistory =
-    JSON.parse(localStorage.getItem("trainingHistory")) || [];
+function getUserKey(key) {
+    if (!window.currentUser) {
+        return key;
+    }
 
-populateExercises();
-renderSets();
-renderHistory();
-renderRecords();
-renderDashboard();
-populateProgressExercises();
-renderProgress();
-renderCalendar();
+    return `${key}_${window.currentUser.uid}`;
+}
 
 document
     .getElementById("trainingType")
@@ -34,16 +29,54 @@ document
     .addEventListener("change", showLastPerformance);
 
 function saveSets() {
-    localStorage.setItem("currentTrainingSets", JSON.stringify(sets));
+    localStorage.setItem(
+        getUserKey("currentTrainingSets"),
+        JSON.stringify(sets)
+    );
 }
 
 function saveExerciseLibrary() {
-    localStorage.setItem("exerciseLibrary", JSON.stringify(exerciseLibrary));
+    localStorage.setItem(
+        getUserKey("exerciseLibrary"),
+        JSON.stringify(exerciseLibrary)
+    );
 }
 
 function saveHistory() {
-    localStorage.setItem("trainingHistory", JSON.stringify(trainingHistory));
+    localStorage.setItem(
+        getUserKey("trainingHistory"),
+        JSON.stringify(trainingHistory)
+    );
 }
+
+window.loadUserData = function () {
+    sets =
+        JSON.parse(localStorage.getItem(getUserKey("currentTrainingSets"))) || [];
+
+    exerciseLibrary =
+        JSON.parse(localStorage.getItem(getUserKey("exerciseLibrary"))) || {
+            Upper: [],
+            Lower: [],
+            "Full Body": [],
+            Cardio: [],
+            Custom: []
+        };
+
+    trainingHistory =
+        JSON.parse(localStorage.getItem(getUserKey("trainingHistory"))) || [];
+
+    populateExercises();
+    renderSets();
+    renderHistory();
+    renderRecords();
+    renderDashboard();
+    populateProgressExercises();
+    renderProgress();
+    renderCalendar();
+    showLastPerformance();
+
+    console.log("User data geladen voor:", window.currentUser.email);
+};
 
 function populateExercises() {
     const dropdown = document.getElementById("exercise");
@@ -357,7 +390,7 @@ function clearTraining(askConfirm = true) {
 
     sets = [];
 
-    localStorage.removeItem("currentTrainingSets");
+    localStorage.removeItem(getUserKey("currentTrainingSets"));
 
     document.getElementById("report").value = "";
     document.getElementById("notes").value = "";
