@@ -14,47 +14,88 @@ let calendarDate = new Date();
 
 let restTimerInterval = null;
 let restSeconds = 90;
+let exerciseMeta = {};
 
 function getUserKey(key) {
-    if (!window.currentUser) {
-        return key;
-    }
-
+    if (!window.currentUser) return key;
     return `${key}_${window.currentUser.uid}`;
 }
 
-document
-    .getElementById("trainingType")
-    .addEventListener("change", populateExercises);
-
-document
-    .getElementById("exercise")
-    .addEventListener("change", showLastPerformance);
-
 function saveSets() {
-    localStorage.setItem(
-        getUserKey("currentTrainingSets"),
-        JSON.stringify(sets)
-    );
+    localStorage.setItem(getUserKey("currentTrainingSets"), JSON.stringify(sets));
 }
 
 function saveExerciseLibrary() {
-    localStorage.setItem(
-        getUserKey("exerciseLibrary"),
-        JSON.stringify(exerciseLibrary)
-    );
+    localStorage.setItem(getUserKey("exerciseLibrary"), JSON.stringify(exerciseLibrary));
 }
 
 function saveHistory() {
-    localStorage.setItem(
-        getUserKey("trainingHistory"),
-        JSON.stringify(trainingHistory)
-    );
+    localStorage.setItem(getUserKey("trainingHistory"), JSON.stringify(trainingHistory));
+}
+
+function saveExerciseMeta() {
+    localStorage.setItem(getUserKey("exerciseMeta"), JSON.stringify(exerciseMeta));
+}
+
+function getExerciseMeta(exercise) {
+    if (!exerciseMeta[exercise]) {
+        exerciseMeta[exercise] = { perSide: false };
+    }
+
+    return exerciseMeta[exercise];
+}
+
+function formatWeight(exercise, weight) {
+    const meta = getExerciseMeta(exercise);
+
+    if (meta.perSide) {
+        return `${weight} kg per kant`;
+    }
+
+    return `${weight} kg`;
+}
+
+function updateExerciseWeightCheckbox() {
+    const exercise = document.getElementById("exercise")?.value;
+    const checkbox = document.getElementById("exercisePerSide");
+
+    if (!checkbox) return;
+
+    if (!exercise) {
+        checkbox.checked = false;
+        return;
+    }
+
+    checkbox.checked = !!getExerciseMeta(exercise).perSide;
+}
+
+function saveExerciseWeightType() {
+    const exercise = document.getElementById("exercise").value;
+    const perSide = document.getElementById("exercisePerSide").checked;
+
+    if (!exercise) {
+        showToast("Selecteer eerst een oefening.");
+        return;
+    }
+
+    exerciseMeta[exercise] = {
+        perSide: perSide
+    };
+
+    saveExerciseMeta();
+
+    renderSets();
+    renderHistory();
+    renderRecords();
+    renderProgress();
+    renderCalendar();
+    showLastPerformance();
+
+    showToast("Gewichtstype opgeslagen.");
 }
 
 window.loadUserData = function () {
-    sets =
-        JSON.parse(localStorage.getItem(getUserKey("currentTrainingSets"))) || [];
+    sets = JSON.parse(localStorage.getItem(getUserKey("currentTrainingSets"))) || [];
 
     exerciseLibrary =
         JSON.parse(localStorage.getItem(getUserKey("exerciseLibrary"))) || {
@@ -68,6 +109,9 @@ window.loadUserData = function () {
     trainingHistory =
         JSON.parse(localStorage.getItem(getUserKey("trainingHistory"))) || [];
 
+    exerciseMeta =
+        JSON.parse(localStorage.getItem(getUserKey("exerciseMeta"))) || {};
+
     populateExercises();
     renderSets();
     renderHistory();
@@ -76,12 +120,30 @@ window.loadUserData = function () {
     renderProgress();
     renderCalendar();
     showLastPerformance();
-
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    document
+        .getElementById("trainingType")
+        ?.addEventListener("change", populateExercises);
+
+    document
+        .getElementById("exercise")
+        ?.addEventListener("change", () => {
+            updateExerciseWeightCheckbox();
+            showLastPerformance();
+        });
+
+    document
+        .getElementById("exercisePerSide")
+        ?.addEventListener("change", saveExerciseWeightType);
+});
 
 function populateExercises() {
     const dropdown = document.getElementById("exercise");
     const trainingType = document.getElementById("trainingType").value;
+
+    if (!dropdown) return;
 
     dropdown.innerHTML = "";
 
@@ -97,12 +159,14 @@ function populateExercises() {
         dropdown.appendChild(option);
     });
 
+    updateExerciseWeightCheckbox();
     showLastPerformance();
 }
 
 function addExercise() {
     const trainingType = document.getElementById("trainingType").value;
     const newExercise = document.getElementById("newExercise").value.trim();
+    const perSide = document.getElementById("exercisePerSide")?.checked || false;
 
     if (!newExercise) {
         showToast("Vul een oefening in.");
@@ -114,6 +178,12 @@ function addExercise() {
         saveExerciseLibrary();
     }
 
+    exerciseMeta[newExercise] = {
+        perSide: perSide
+    };
+
+    saveExerciseMeta();
+
     populateExercises();
     populateProgressExercises();
 
@@ -121,7 +191,10 @@ function addExercise() {
     document.getElementById("newExercise").value = "";
     document.getElementById("weight").focus();
 
+    updateExerciseWeightCheckbox();
     showLastPerformance();
+
+    showToast("Oefening toegevoegd.");
 }
 
 function deleteExercise() {
@@ -140,9 +213,87 @@ function deleteExercise() {
     exerciseLibrary[trainingType] =
         exerciseLibrary[trainingType].filter(e => e !== exercise);
 
+    delete exerciseMeta[exercise];
+
     saveExerciseLibrary();
+    saveExerciseMeta();
+
     populateExercises();
     populateProgressExercises();
+    renderSets();
+    renderHistory();
+    renderRecords();
+    renderProgress();
+    renderCalendar();
+    showLastPerformance();
+
+    showToast("Oefening verwijderd.");
+}
+
+function editExercise() {
+    const trainingType = document.getElementById("trainingType").value;
+    const oldExercise = document.getElementById("exercise").value;
+
+    if (!oldExercise) {
+        showToast("Selecteer eerst een oefening.");
+        return;
+    }
+
+    const newExercise = prompt("Nieuwe naam:", oldExercise);
+
+    if (!newExercise || !newExercise.trim()) return;
+
+    const cleanNewExercise = newExercise.trim();
+
+    if (exerciseLibrary[trainingType].includes(cleanNewExercise)) {
+        showToast("Deze oefening bestaat al.");
+        return;
+    }
+
+    const index = exerciseLibrary[trainingType].indexOf(oldExercise);
+
+    if (index === -1) {
+        showToast("Oefening niet gevonden.");
+        return;
+    }
+
+    exerciseLibrary[trainingType][index] = cleanNewExercise;
+
+    sets.forEach(set => {
+        if (set.exercise === oldExercise) {
+            set.exercise = cleanNewExercise;
+        }
+    });
+
+    trainingHistory.forEach(training => {
+        training.sets.forEach(set => {
+            if (set.exercise === oldExercise) {
+                set.exercise = cleanNewExercise;
+            }
+        });
+    });
+
+    exerciseMeta[cleanNewExercise] = getExerciseMeta(oldExercise);
+    delete exerciseMeta[oldExercise];
+
+    saveExerciseLibrary();
+    saveExerciseMeta();
+    saveSets();
+    saveHistory();
+
+    populateExercises();
+    populateProgressExercises();
+
+    document.getElementById("exercise").value = cleanNewExercise;
+
+    renderSets();
+    renderHistory();
+    renderRecords();
+    renderProgress();
+    renderCalendar();
+    showLastPerformance();
+
+    showToast("Oefening aangepast.");
 }
 
 function addSet() {
@@ -158,12 +309,17 @@ function addSet() {
     const numericWeight = Number(weight);
     const numericReps = Number(reps);
 
+    if (numericWeight <= 0 || numericReps <= 0) {
+        showToast("Gewicht en reps moeten hoger zijn dan 0.");
+        return;
+    }
+
     const highestWeight = getHighestWeight(exercise);
 
     if (highestWeight === 0) {
-        showToast(`${exercise} eerste record: ${numericWeight} kg`);
+        showToast(`${exercise} eerste record: ${formatWeight(exercise, numericWeight)}`);
     } else if (numericWeight > highestWeight) {
-        showToast(`${exercise} PR! ${highestWeight} → ${numericWeight} kg`);
+        showToast(`${exercise} PR! ${formatWeight(exercise, highestWeight)} → ${formatWeight(exercise, numericWeight)}`);
     }
 
     sets.push({
@@ -187,17 +343,14 @@ function deleteSet(index) {
 }
 
 function editSet(index) {
-
     const set = sets[index];
 
-    document.getElementById("exercise").value =
-        set.exercise;
+    document.getElementById("exercise").value = set.exercise;
+    document.getElementById("weight").value = set.weight;
+    document.getElementById("reps").value = set.reps;
 
-    document.getElementById("weight").value =
-        set.weight;
-
-    document.getElementById("reps").value =
-        set.reps;
+    updateExerciseWeightCheckbox();
+    showLastPerformance();
 
     sets.splice(index, 1);
 
@@ -209,6 +362,8 @@ function editSet(index) {
 
 function renderSets() {
     const setList = document.getElementById("setList");
+
+    if (!setList) return;
 
     if (sets.length === 0) {
         setList.innerHTML = "<p>Nog geen sets toegevoegd.</p>";
@@ -222,22 +377,16 @@ function renderSets() {
         div.className = "set-item";
 
         div.innerHTML = `
-            <strong>
-            ${index + 1}. ${set.exercise}
-            </strong>
+            <strong>${index + 1}. ${set.exercise}</strong>
             <br>
-            ${set.weight} kg x ${set.reps}
+            ${formatWeight(set.exercise, set.weight)} x ${set.reps}
 
-        <div class="set-actions">
-            <button onclick="editSet(${index})">
-               Bewerken
-            </button>
+            <div class="set-actions">
+                <button onclick="editSet(${index})">Bewerken</button>
+                <button onclick="deleteSet(${index})">Verwijder</button>
+            </div>
+        `;
 
-        <button onclick="deleteSet(${index})">
-            Verwijder
-        </button>
-    </div>
-`;
         setList.appendChild(div);
     });
 }
@@ -250,7 +399,9 @@ function groupSetsByExercise() {
             grouped[set.exercise] = [];
         }
 
-        grouped[set.exercise].push(`${set.weight} kg x ${set.reps}`);
+        grouped[set.exercise].push(
+            `${formatWeight(set.exercise, set.weight)} x ${set.reps}`
+        );
     });
 
     return grouped;
@@ -382,7 +533,7 @@ function toggleHistoryDetails(index) {
 
         grouped[exercise].forEach(set => {
             html += `
-                <div>${set.weight} kg x ${set.reps}</div>
+                <div>${formatWeight(set.exercise, set.weight)} x ${set.reps}</div>
             `;
         });
 
@@ -437,7 +588,7 @@ function clearTraining(askConfirm = true) {
 }
 
 function showLastPerformance() {
-    const exercise = document.getElementById("exercise").value;
+    const exercise = document.getElementById("exercise")?.value;
     const box = document.getElementById("lastPerformance");
 
     if (!box) return;
@@ -446,8 +597,7 @@ function showLastPerformance() {
         box.style.display = "none";
         box.innerHTML = "";
         return;
-}
-
+    }
 
     const lastTraining =
         trainingHistory.find(training =>
@@ -456,6 +606,7 @@ function showLastPerformance() {
 
     if (!lastTraining) {
         box.innerHTML = "⚔️ Nog geen eerdere prestaties.";
+        box.style.display = "block";
         return;
     }
 
@@ -465,7 +616,7 @@ function showLastPerformance() {
     let html = `<strong>⚔️ Laatste keer:</strong><br>`;
 
     exerciseSets.forEach(set => {
-        html += `${set.weight} kg x ${set.reps}<br>`;
+        html += `${formatWeight(set.exercise, set.weight)} x ${set.reps}<br>`;
     });
 
     html += `<small>${lastTraining.date}</small>`;
@@ -473,7 +624,6 @@ function showLastPerformance() {
     box.innerHTML = html;
     box.style.display = "block";
 }
-
 
 function getHighestWeight(exercise) {
     let highestWeight = 0;
@@ -501,6 +651,7 @@ function showTab(tabId) {
     document.getElementById("recordsTab").style.display = "none";
     document.getElementById("progressTab").style.display = "none";
     document.getElementById("calendarTab").style.display = "none";
+    document.getElementById("settingsTab").style.display = "none";
 
     document.getElementById(tabId).style.display = "block";
 }
@@ -530,7 +681,7 @@ function renderRecords() {
         .forEach(exercise => {
             html += `
                 <div class="record-item">
-                    🏆 ${exercise} - ${records[exercise]} kg
+                    🏆 ${exercise} - ${formatWeight(exercise, records[exercise])}
                 </div>
             `;
         });
@@ -651,7 +802,7 @@ function renderProgress() {
     progressData.forEach(entry => {
         html += `
             <div class="progress-item">
-                📅 ${entry.date} - 🏆 ${entry.weight} kg
+                📅 ${entry.date} - 🏆 ${formatWeight(selectedExercise, entry.weight)}
             </div>
         `;
     });
@@ -704,7 +855,8 @@ function clearProgressChart() {
 }
 
 function parseDutchDate(dateString) {
-    const parts = dateString.split("-");
+    const separator = dateString.includes("-") ? "-" : "/";
+    const parts = dateString.split(separator);
 
     return new Date(
         Number(parts[2]),
@@ -789,21 +941,18 @@ function renderCalendar() {
         startDay = 7;
     }
 
-const trainingByDate = {};
+    const trainingByDate = {};
 
-trainingHistory.forEach(training => {
+    trainingHistory.forEach(training => {
+        const normalizedDate =
+            normalizeDateString(training.date);
 
-    const normalizedDate =
-        normalizeDateString(training.date);
+        if (!trainingByDate[normalizedDate]) {
+            trainingByDate[normalizedDate] = [];
+        }
 
-    if (!trainingByDate[normalizedDate]) {
-        trainingByDate[normalizedDate] = [];
-    }
-
-    trainingByDate[normalizedDate]
-        .push(training.trainingType);
-
-});
+        trainingByDate[normalizedDate].push(training.trainingType);
+    });
 
     let html = `
         <div class="calendar-grid calendar-header">
@@ -838,16 +987,14 @@ trainingHistory.forEach(training => {
         const labels =
             [...new Set(trainingsForDay)]
                 .map(type => {
-
                     if (type === "Upper") return "U";
                     if (type === "Lower") return "L";
                     if (type === "Full Body") return "F";
                     if (type === "Cardio") return "C";
                     if (type === "Custom") return "X";
 
-            return "?";
-
-        }).join(" ");
+                    return "?";
+                }).join(" ");
 
         html += `
             <div
@@ -868,7 +1015,8 @@ trainingHistory.forEach(training => {
 }
 
 function normalizeDateString(dateString) {
-    const parts = dateString.split("-");
+    const separator = dateString.includes("-") ? "-" : "/";
+    const parts = dateString.split(separator);
 
     const day =
         String(Number(parts[0])).padStart(2, "0");
@@ -883,7 +1031,6 @@ function normalizeDateString(dateString) {
 }
 
 function showCalendarDetails(dateString) {
-
     const details =
         document.getElementById("calendarDetails");
 
@@ -895,7 +1042,6 @@ function showCalendarDetails(dateString) {
         );
 
     if (trainings.length === 0) {
-
         details.innerHTML = `
             <h3>📅 ${dateString}</h3>
             <p>Geen training opgeslagen.</p>
@@ -909,32 +1055,29 @@ function showCalendarDetails(dateString) {
     `;
 
     trainings.forEach(training => {
-
         html += `
             <div class="calendar-training">
                 <h4>⚔️ ${training.trainingType}</h4>
         `;
 
-    let lastExercise = "";
+        let lastExercise = "";
 
-    training.sets.forEach(set => {
+        training.sets.forEach(set => {
+            if (lastExercise && lastExercise !== set.exercise) {
+                html += `<br>`;
+            }
 
-        if (lastExercise && lastExercise !== set.exercise) {
-            html += `<br>`;
-        }
+            html += `
+                <div>
+                    ${set.exercise} -
+                    ${formatWeight(set.exercise, set.weight)} x ${set.reps}
+                </div>
+            `;
 
-    html += `
-        <div>
-            ${set.exercise} -
-            ${set.weight} kg x ${set.reps}
-        </div>
-    `;
-
-    lastExercise = set.exercise;
-});
+            lastExercise = set.exercise;
+        });
 
         if (training.notes) {
-
             html += `
                 <p>
                     <strong>📝 Opmerking:</strong><br>
@@ -946,7 +1089,6 @@ function showCalendarDetails(dateString) {
         html += `
             </div>
         `;
-
     });
 
     details.innerHTML = html;
@@ -964,6 +1106,7 @@ function showToast(message) {
         toast.classList.remove("show");
     }, 3000);
 }
+
 function startRestTimer(seconds = 90) {
     const timerBox = document.getElementById("restTimer");
     const timerText = document.getElementById("restTime");
@@ -987,41 +1130,4 @@ function startRestTimer(seconds = 90) {
             showToast("Rust klaar");
         }
     }, 1000);
-}
-
-function editExercise() {
-
-    const oldExercise =
-        document.getElementById("exercise").value;
-
-    if (!oldExercise) {
-        showToast("Selecteer eerst een oefening.");
-        return;
-    }
-
-    const newExercise = prompt(
-        "Nieuwe naam:",
-        oldExercise
-    );
-
-    if (!newExercise) return;
-
-    const exercises =
-        JSON.parse(localStorage.getItem(getUserKey("exercises"))) || [];
-
-    const index =
-        exercises.indexOf(oldExercise);
-
-    if (index === -1) return;
-
-    exercises[index] = newExercise;
-
-    localStorage.setItem(
-        getUserKey("exercises"),
-        JSON.stringify(exercises)
-    );
-
-    populateExercises();
-
-    showToast("Oefening aangepast.");
 }
