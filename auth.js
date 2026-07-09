@@ -45,7 +45,7 @@ onAuthStateChanged(auth, (user) => {
 
     if (typeof loadUserData === "function") {
       loadUserData();
-    }
+}
   } else {
     window.currentUser = null;
 

@@ -23,18 +23,22 @@ function getUserKey(key) {
 
 function saveSets() {
     localStorage.setItem(getUserKey("currentTrainingSets"), JSON.stringify(sets));
+    syncAllDataToCloud();
 }
 
 function saveExerciseLibrary() {
     localStorage.setItem(getUserKey("exerciseLibrary"), JSON.stringify(exerciseLibrary));
+    syncAllDataToCloud();
 }
 
 function saveHistory() {
     localStorage.setItem(getUserKey("trainingHistory"), JSON.stringify(trainingHistory));
+    syncAllDataToCloud();
 }
 
 function saveExerciseMeta() {
     localStorage.setItem(getUserKey("exerciseMeta"), JSON.stringify(exerciseMeta));
+    syncAllDataToCloud();
 }
 
 function getExerciseMeta(exercise) {
@@ -94,10 +98,11 @@ function saveExerciseWeightType() {
     showToast("Gewichtstype opgeslagen.");
 }
 
-window.loadUserData = function () {
-    sets = JSON.parse(localStorage.getItem(getUserKey("currentTrainingSets"))) || [];
+window.loadUserData = async function () {
+    const localSets =
+        JSON.parse(localStorage.getItem(getUserKey("currentTrainingSets"))) || [];
 
-    exerciseLibrary =
+    const localExerciseLibrary =
         JSON.parse(localStorage.getItem(getUserKey("exerciseLibrary"))) || {
             Upper: [],
             Lower: [],
@@ -106,11 +111,38 @@ window.loadUserData = function () {
             Custom: []
         };
 
-    trainingHistory =
+    const localTrainingHistory =
         JSON.parse(localStorage.getItem(getUserKey("trainingHistory"))) || [];
 
-    exerciseMeta =
+    const localExerciseMeta =
         JSON.parse(localStorage.getItem(getUserKey("exerciseMeta"))) || {};
+
+    let cloudData = null;
+
+    if (typeof window.loadCloudData === "function") {
+        try {
+            cloudData = await window.loadCloudData();
+        } catch (error) {
+            console.error("Cloud data laden mislukt:", error);
+            showToast("Cloud laden mislukt. Lokale data gebruikt.");
+        }
+    }
+
+    if (cloudData) {
+        sets = cloudData.currentTrainingSets || localSets;
+        exerciseLibrary = cloudData.exerciseLibrary || localExerciseLibrary;
+        trainingHistory = cloudData.trainingHistory || localTrainingHistory;
+        exerciseMeta = cloudData.exerciseMeta || localExerciseMeta;
+    } else {
+        sets = localSets;
+        exerciseLibrary = localExerciseLibrary;
+        trainingHistory = localTrainingHistory;
+        exerciseMeta = localExerciseMeta;
+
+        await syncAllDataToCloud();
+    }
+
+    saveAllLocalData();
 
     populateExercises();
     renderSets();
@@ -121,6 +153,28 @@ window.loadUserData = function () {
     renderCalendar();
     showLastPerformance();
 };
+
+function saveAllLocalData() {
+    localStorage.setItem(getUserKey("currentTrainingSets"), JSON.stringify(sets));
+    localStorage.setItem(getUserKey("exerciseLibrary"), JSON.stringify(exerciseLibrary));
+    localStorage.setItem(getUserKey("trainingHistory"), JSON.stringify(trainingHistory));
+    localStorage.setItem(getUserKey("exerciseMeta"), JSON.stringify(exerciseMeta));
+}
+
+async function syncAllDataToCloud() {
+    if (typeof window.saveCloudData !== "function") return;
+
+    try {
+        await window.saveCloudData({
+            currentTrainingSets: sets,
+            exerciseLibrary: exerciseLibrary,
+            trainingHistory: trainingHistory,
+            exerciseMeta: exerciseMeta
+        });
+    } catch (error) {
+        console.error("Cloud sync mislukt:", error);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     document
