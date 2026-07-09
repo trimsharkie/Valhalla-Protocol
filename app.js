@@ -94,8 +94,6 @@ function saveExerciseWeightType() {
     renderProgress();
     renderCalendar();
     showLastPerformance();
-
-    showToast("Gewichtstype opgeslagen.");
 }
 
 window.loadUserData = async function () {
