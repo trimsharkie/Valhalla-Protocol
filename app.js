@@ -15,6 +15,7 @@ let calendarDate = new Date();
 let restTimerInterval = null;
 let restSeconds = 90;
 let exerciseMeta = {};
+let editingSetIndex = null;
 
 function getUserKey(key) {
     if (!window.currentUser) return key;
@@ -366,12 +367,31 @@ function addSet() {
         return;
     }
 
+    if (editingSetIndex !== null) {
+        sets[editingSetIndex] = {
+            exercise: exercise,
+            weight: numericWeight,
+            reps: numericReps
+        };
+
+        saveSets();
+        renderSets();
+        resetSetForm();
+
+        showToast("Set aangepast.");
+        return;
+    }
+
     const highestWeight = getHighestWeight(exercise);
 
     if (highestWeight === 0) {
-        showToast(`${exercise} eerste record: ${formatWeight(exercise, numericWeight)}`);
+        showToast(
+            `${exercise} eerste record: ${formatWeight(exercise, numericWeight)}`
+        );
     } else if (numericWeight > highestWeight) {
-        showToast(`${exercise} PR! ${formatWeight(exercise, highestWeight)} → ${formatWeight(exercise, numericWeight)}`);
+        showToast(
+            `${exercise} PR! ${formatWeight(exercise, highestWeight)} → ${formatWeight(exercise, numericWeight)}`
+        );
     }
 
     sets.push({
@@ -389,13 +409,43 @@ function addSet() {
 }
 
 function deleteSet(index) {
+    if (!confirm("Deze set verwijderen?")) {
+        return;
+    }
+
     sets.splice(index, 1);
+
+    if (editingSetIndex === index) {
+        resetSetForm();
+    } else if (
+        editingSetIndex !== null &&
+        index < editingSetIndex
+    ) {
+        editingSetIndex--;
+    }
+
     saveSets();
     renderSets();
+
+    showToast("Set verwijderd.");
 }
 
 function editSet(index) {
     const set = sets[index];
+
+    if (!set) {
+        showToast("Set niet gevonden.");
+        return;
+    }
+
+    editingSetIndex = index;
+
+    const trainingType = findTrainingTypeForExercise(set.exercise);
+
+    if (trainingType) {
+        document.getElementById("trainingType").value = trainingType;
+        populateExercises();
+    }
 
     document.getElementById("exercise").value = set.exercise;
     document.getElementById("weight").value = set.weight;
@@ -404,12 +454,22 @@ function editSet(index) {
     updateExerciseWeightCheckbox();
     showLastPerformance();
 
-    sets.splice(index, 1);
+    const addSetBtn = document.getElementById("addSetBtn");
+    const cancelEditSetBtn = document.getElementById("cancelEditSetBtn");
 
-    saveSets();
-    renderSets();
+    if (addSetBtn) {
+        addSetBtn.textContent = "Set bijwerken";
+    }
+
+    if (cancelEditSetBtn) {
+        cancelEditSetBtn.style.display = "block";
+    }
 
     document.getElementById("weight").focus();
+    document.getElementById("weight").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
 }
 
 function renderSets() {
@@ -441,6 +501,41 @@ function renderSets() {
 
         setList.appendChild(div);
     });
+}
+
+function cancelEditSet() {
+    resetSetForm();
+    showToast("Bewerken geannuleerd.");
+}
+
+function resetSetForm() {
+    editingSetIndex = null;
+
+    document.getElementById("weight").value = "";
+    document.getElementById("reps").value = "";
+
+    const addSetBtn = document.getElementById("addSetBtn");
+    const cancelEditSetBtn = document.getElementById("cancelEditSetBtn");
+
+    if (addSetBtn) {
+        addSetBtn.textContent = "Set toevoegen";
+    }
+
+    if (cancelEditSetBtn) {
+        cancelEditSetBtn.style.display = "none";
+    }
+
+    document.getElementById("weight").focus();
+}
+
+function findTrainingTypeForExercise(exercise) {
+    for (const trainingType of Object.keys(exerciseLibrary)) {
+        if (exerciseLibrary[trainingType].includes(exercise)) {
+            return trainingType;
+        }
+    }
+
+    return null;
 }
 
 function groupSetsByExercise() {
@@ -631,12 +726,16 @@ function clearTraining(askConfirm = true) {
     }
 
     sets = [];
+    editingSetIndex = null;
 
     localStorage.removeItem(getUserKey("currentTrainingSets"));
 
     document.getElementById("notes").value = "";
 
+    resetSetForm();
     renderSets();
+
+    syncAllDataToCloud();
 }
 
 function showLastPerformance() {
